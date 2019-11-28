@@ -742,7 +742,7 @@ void ezSettings::defaults() {
 		_brightness = prefs.getUChar("brightness", 128);
 		_inactivity = prefs.getUChar("inactivity", NEVER);
 		prefs.end();
-		m5.lcd.setBrightness(_brightness);
+//		m5.lcd.setBrightness(_brightness);
 	}
 
 	void ezBacklight::menu() {
@@ -765,7 +765,7 @@ void ezSettings::defaults() {
 							if (b == "left" && _brightness > 16) _brightness -= 16;
 							if (_brightness == 239) _brightness = 240;
 							bl.value((float)(_brightness / 2.55));
-							m5.lcd.setBrightness(_brightness);
+//							m5.lcd.setBrightness(_brightness);
 							if (b == "ok") break;
 						}
 					}
@@ -838,14 +838,14 @@ void ezSettings::defaults() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
 				_backlight_off = true;
-				m5.lcd.setBrightness(0);
+//				m5.lcd.setBrightness(0);
 				while (true) {
 					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
 					ez.yield();
 					delay(10);
 				}
 				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
-				m5.lcd.setBrightness(_brightness);
+//				m5.lcd.setBrightness(_brightness);
 				activity();
 				_backlight_off = false;
 			}

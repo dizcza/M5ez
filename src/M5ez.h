@@ -5,7 +5,7 @@
 
 
 // Comment out the line below to disable WPS.
-#define M5EZ_WPS
+//#define M5EZ_WPS
 
 // Turn this off to compile without WiFi (no) OTA updates, no clock)
 #define M5EZ_WIFI
@@ -20,7 +20,7 @@
 #define M5EZ_CLOCK
 
 // FACES settings menu
-#define M5EZ_FACES
+//#define M5EZ_FACES
 
 #include <vector>			// std::vector
 #include <WiFi.h>			// WiFiEvent_t, system_event_info_t
