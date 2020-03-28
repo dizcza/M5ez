@@ -444,34 +444,55 @@ void ezCanvas::_putString(String text) {
 //   B U T T O N S 
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 String ezButtons::_btn_a_s, ezButtons::_btn_a_l;
 String ezButtons::_btn_b_s, ezButtons::_btn_b_l;
 String ezButtons::_btn_c_s, ezButtons::_btn_c_l;
+String ezButtons::_btn_d_s, ezButtons::_btn_d_l;
+String ezButtons::_btn_e_s, ezButtons::_btn_e_l;
+String ezButtons::_btn_f_s, ezButtons::_btn_f_l;*/
+
+String ezButtons::_btn_f_s = "group";
+String ezButtons::_btn_e_s = "down";
+String ezButtons::_btn_d_s = "ok";
+String ezButtons::_btn_c_s = "left";
+String ezButtons::_btn_b_s = "up";
+String ezButtons::_btn_a_s = "right";
+
+String ezButtons::_btn_a_l;
+String ezButtons::_btn_b_l;
+String ezButtons::_btn_c_l;
+String ezButtons::_btn_d_l;
+String ezButtons::_btn_e_l;
+String ezButtons::_btn_f_l;
+
 String ezButtons::_btn_ab, ezButtons::_btn_bc, ezButtons::_btn_ac;
 bool ezButtons::_key_release_wait;
 bool ezButtons::_lower_button_row, ezButtons::_upper_button_row;  
 
 void ezButtons::begin() { clear(false); }
 
+//   0       1     2     3     4     5      6    7    8    9     10    11    12    13    14
+// group # down # OK # left # up # right # ab # bc # ac # d_l # e_l # f_l # a_l # b_l # c_l 
 void ezButtons::show(String buttons) {
 	buttons.trim();
 	std::vector<String> buttonVector;
 	ez.chopString(buttons, "#", buttonVector, true);
 	switch (buttonVector.size()) {
-		case 1:
-			_drawButtons("", "", buttons, "", "", "", "", "", "");
-			break;
 		case 3:
-			// Three elements, so shortpress only
-			_drawButtons(buttonVector[0], "", buttonVector[1], "", buttonVector[2], "", "", "", "");
+			// Three elements, so three multi-keys 
+			_drawButtons(buttonVector[0],  buttonVector[1], buttonVector[2], "", "", "", "", "", "");
+			break;
+		case 4:
+			// Four elements, so three multi-keys plus top row with d_l
+			_drawButtons(buttonVector[0],  buttonVector[1], buttonVector[2], buttonVector[3], "", "", "", "", "");
 			break;
 		case 6:
-			// Six elements, so all buttons long and short
+			// Six elements, so three multi-keys plus top row with d_l, e_l, f_l
 			_drawButtons(buttonVector[0], buttonVector[1], buttonVector[2], buttonVector[3], buttonVector[4], buttonVector[5], "", "", "");
 			break;
 		case 9:
-			// Nine elements, so all buttons long and short plus the top row of three multi-keys
+			// Nine elements, so three multi-keys plus the top row of all buttons long
 			_drawButtons(buttonVector[0], buttonVector[1], buttonVector[2], buttonVector[3], buttonVector[4], buttonVector[5], buttonVector[6], buttonVector[7], buttonVector[8]);
 			break;
 	}
@@ -481,6 +502,7 @@ void ezButtons::clear(bool wipe /* = true */) {
 	if (wipe && (_lower_button_row  || _upper_button_row)) {
 		m5.lcd.fillRect(0, ez.canvas.bottom() + 1, TFT_H - ez.canvas.bottom() - 1, TFT_W, ez.screen.background());
 	}
+	_btn_d_s = _btn_d_l = _btn_e_s = _btn_e_l = _btn_f_s = _btn_f_l = "";
 	_btn_a_s = _btn_a_l = _btn_b_s = _btn_b_l = _btn_c_s = _btn_c_l = "";
 	_btn_ab = _btn_bc = _btn_ac = "";
 	_lower_button_row = false;
@@ -488,6 +510,7 @@ void ezButtons::clear(bool wipe /* = true */) {
 	ez.canvas.bottom(TFT_H - 1);
 }
 
+/*
 void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, String btn_b_l, String btn_c_s, String btn_c_l, String btn_ab, String btn_bc, String btn_ac) {
 	int16_t btnwidth = int16_t( (TFT_W - 4 * ez.theme->button_gap ) / 3);
 
@@ -522,6 +545,7 @@ void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, Str
 			_lower_button_row = false;
 		}
 	}
+
 	//Now check if there are multi-buttons used (top row)
 	if (btn_ab != "" || btn_bc != "" || btn_ac != "") {
 		if (!_upper_button_row) {
@@ -558,6 +582,87 @@ void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, Str
 			_upper_button_row = false;
 		}			
 	}
+
+	uint8_t button_rows = _upper_button_row ? 2 : (_lower_button_row ? 1 : 0);
+	ez.canvas.bottom(TFT_H - (button_rows * (ez.theme->button_height + ez.theme->button_gap)));
+}
+*/
+
+void ezButtons::_drawButtons(String btn_ab, String btn_bc, String btn_ac, String btn_d_l, String btn_e_l, String btn_f_l, String btn_a_l, String btn_b_l, String btn_c_l) {
+	int16_t btnwidth = int16_t( (TFT_W - 4 * ez.theme->button_gap ) / 3);
+
+	//Now check if there are multi-buttons used (bottom row)
+	if (btn_ab != "" || btn_bc != "" || btn_ac != "") {
+		if (!_lower_button_row) {
+			// If the lower button row wasn't there before, clear the area first
+			m5.lcd.fillRect(0, TFT_H - ez.theme->button_height - ez.theme->button_gap, TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+		}
+		// Then draw the buttons
+		if (_btn_ab != btn_ab) {
+			_drawButton(1, ez.rightOf(btn_ab, "|", true), "", ez.theme->button_gap + (btnwidth / 2), btnwidth);
+			_btn_ab = btn_ab;
+		}
+		if (_btn_bc != btn_bc) {
+			_drawButton(1, ez.rightOf(btn_bc, "|", true), "", (2 * ez.theme->button_gap) + btnwidth + (btnwidth / 2), btnwidth);
+			_btn_bc = btn_bc;
+		}
+		if (_btn_ac != btn_ac) {
+			// Two halves of the same button
+
+			// ugly in code, prettier on the screen: making the buttons square on the screen edges to signal wrap-around
+			m5.lcd.fillRect(0, TFT_H - ez.theme->button_height - ez.theme->button_gap, TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+			m5.lcd.fillRect(TFT_W - (btnwidth / 4), TFT_H - ez.theme->button_height - ez.theme->button_gap, btnwidth / 4, ez.theme->button_height, ez.theme->button_bgcolor_t);
+
+			_drawButton(1, ez.rightOf(btn_ac, "|", true), "", (3 * ez.theme->button_gap) + (2 * btnwidth) + (btnwidth / 2), (btnwidth / 2));
+			_drawButton(1, ez.rightOf(btn_ac, "|", true), "", 0, (btnwidth / 2));
+
+			_btn_ac = btn_ac;
+		}
+		_lower_button_row = true;
+
+	} else {
+		if (_lower_button_row) {
+			// If there was an lower button row before and it's now gone, clear the area
+			m5.lcd.fillRect(0, TFT_H - ez.theme->button_height - ez.theme->button_gap, TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+			_btn_ab = _btn_bc = _btn_ac = "";
+			_lower_button_row = false;
+			
+		}			
+	}
+
+
+	// See if any buttons long presses are used on the top row - short presses are marked on the membrane switch
+	if (btn_d_l != "" || btn_a_l != "" || btn_e_l != "" || btn_b_l != "" || btn_f_l != "" || btn_c_l != "") {
+		if (!_upper_button_row) {
+			// If the upper button row wasn't there before, clear the area first
+			m5.lcd.fillRect(0, TFT_H - 2 * (ez.theme->button_height + ez.theme->button_gap), TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+		}
+		// Then draw the three buttons there. (drawButton erases single buttons if unused.)
+		if (_btn_d_l != btn_d_l || _btn_a_l != btn_a_l) {
+			_drawButton(2, ez.rightOf(btn_d_l, "|", true), ez.rightOf(btn_a_l, "|", true), ez.theme->button_gap, btnwidth);
+			_btn_d_l = btn_d_l;
+			_btn_a_l = btn_a_l;
+		}
+		if (_btn_e_l != btn_e_l || _btn_b_l != btn_b_l) {
+			_drawButton(2, ez.rightOf(btn_e_l, "|", true), ez.rightOf(btn_b_l, "|", true), btnwidth + 2 * ez.theme->button_gap, btnwidth);
+			_btn_e_l = btn_e_l;
+			_btn_b_l = btn_b_l;		
+		}
+		if (_btn_f_l != btn_f_l || _btn_c_l != btn_c_l) {
+			_drawButton(2, ez.rightOf(btn_f_l, "|", true), ez.rightOf(btn_c_l, "|", true), 2 * btnwidth + 3 * ez.theme->button_gap, btnwidth);
+			_btn_f_l = btn_f_l;
+			_btn_c_l = btn_c_l;		
+		}
+		_upper_button_row = true;
+	} else {
+		if (_upper_button_row) {
+			// If there was a upper button row before and it's now gone, clear the area
+			m5.lcd.fillRect(0, TFT_H - 2 * (ez.theme->button_height + ez.theme->button_gap), TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+			_btn_d_l = _btn_a_l = _btn_e_l = _btn_b_l = _btn_f_l = _btn_c_l = "";
+			_upper_button_row = false;
+		}
+	}
+	
 
 	uint8_t button_rows = _upper_button_row ? 2 : (_lower_button_row ? 1 : 0);
 	ez.canvas.bottom(TFT_H - (button_rows * (ez.theme->button_height + ez.theme->button_gap)));
@@ -652,9 +757,34 @@ String ezButtons::poll() {
 		if (_btn_c_s != "" && m5.BtnC.wasReleased() ) {
 			keystr = ez.leftOf(_btn_c_s, "|", true);
 		}
+
+		if (_btn_d_l != "" && m5.BtnD.pressedFor(ez.theme->longpress_time) ) {
+			keystr = ez.leftOf(_btn_d_l, "|", true);
+			_key_release_wait = true;
+		}
+		if (_btn_d_s != "" && m5.BtnD.wasReleased() ) {
+			keystr = ez.leftOf(_btn_d_s, "|", true);
+		}
+
+		if (_btn_e_l != "" && m5.BtnE.pressedFor(ez.theme->longpress_time) ) {
+			keystr = ez.leftOf(_btn_e_l, "|", true);
+			_key_release_wait = true;
+		}
+		if (_btn_e_s != "" && m5.BtnE.wasReleased() ) {
+			keystr = ez.leftOf(_btn_e_s, "|", true);
+		}
+
+		if (_btn_f_l != "" && m5.BtnF.pressedFor(ez.theme->longpress_time) ) {
+			keystr = ez.leftOf(_btn_f_l, "|", true);
+			_key_release_wait = true;
+		}
+		if (_btn_f_s != "" && m5.BtnF.wasReleased() ) {
+			keystr = ez.leftOf(_btn_f_s, "|", true);
+		}
+
 	}
 
-	if (m5.BtnA.isReleased() && m5.BtnB.isReleased() && m5.BtnC.isReleased() ) {
+	if (m5.BtnA.isReleased() && m5.BtnB.isReleased() && m5.BtnC.isReleased() && m5.BtnD.isReleased() && m5.BtnE.isReleased() && m5.BtnF.isReleased()) {
 		_key_release_wait = false;
 	}		
 

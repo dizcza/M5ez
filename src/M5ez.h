@@ -278,10 +278,13 @@ class ezButtons {
 		static String _btn_a_s, _btn_a_l;
 		static String _btn_b_s, _btn_b_l;
 		static String _btn_c_s, _btn_c_l;
+		static String _btn_d_s, _btn_d_l;
+		static String _btn_e_s, _btn_e_l;
+		static String _btn_f_s, _btn_f_l;		
 		static String _btn_ab, _btn_bc, _btn_ac;
 		static bool _key_release_wait;
 		static bool _lower_button_row, _upper_button_row;
-		static void _drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, String btn_b_l, String btn_c_s, String btn_c_l, String btn_ab, String btn_bc, String btn_ac);
+		static void _drawButtons(String btn_ab, String btn_bc, String btn_ac, String btn_d_l, String btn_e_l, String btn_f_l, String btn_a_l, String btn_b_l, String btn_c_l );
 		static void _drawButton(int16_t row, String text_s, String text_l, int16_t x, int16_t w);
 		static void _drawButtonString(String text, int16_t x, int16_t y, uint16_t color, int16_t datum);
 	//
