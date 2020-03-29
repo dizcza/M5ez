@@ -452,12 +452,12 @@ String ezButtons::_btn_d_s, ezButtons::_btn_d_l;
 String ezButtons::_btn_e_s, ezButtons::_btn_e_l;
 String ezButtons::_btn_f_s, ezButtons::_btn_f_l;*/
 
-String ezButtons::_btn_f_s = "group";
-String ezButtons::_btn_e_s = "down";
-String ezButtons::_btn_d_s = "ok";
-String ezButtons::_btn_c_s = "left";
-String ezButtons::_btn_b_s = "up";
-String ezButtons::_btn_a_s = "right";
+String ezButtons::_btn_a_s = "group";
+String ezButtons::_btn_b_s = "down";
+String ezButtons::_btn_c_s = "OK";
+String ezButtons::_btn_d_s = "left";
+String ezButtons::_btn_e_s = "up";
+String ezButtons::_btn_f_s = "right";
 
 String ezButtons::_btn_a_l;
 String ezButtons::_btn_b_l;
@@ -485,7 +485,7 @@ void ezButtons::show(String buttons) {
 			break;
 		case 4:
 			// Four elements, so three multi-keys plus top row with d_l
-			_drawButtons(buttonVector[0],  buttonVector[1], buttonVector[2], buttonVector[3], "", "", "", "", "");
+			_drawButtons(buttonVector[0], buttonVector[1], buttonVector[2], buttonVector[3], "", "", "", "", "");
 			break;
 		case 6:
 			// Six elements, so three multi-keys plus top row with d_l, e_l, f_l
