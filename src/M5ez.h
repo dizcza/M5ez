@@ -33,7 +33,8 @@
 
 #include <vector>			// std::vector
 #ifdef M5EZ_WIFI
-	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+	#include <WiFi.h>		// WiFiEvent_t, system_event_info_t
+	#include <esp_now.h>
 #endif
 #include <M5Stack.h>		// GFXfont*
 #ifdef M5EZ_CLOCK
@@ -527,6 +528,14 @@ class ezSettings {
 
 #ifdef M5EZ_WIFI
 
+	enum WifiMode_t {
+		EZWIFI_AP,
+		EZWIFI_STA,
+		EZWIFI_APSTA,
+		EZWIFI_ESPNOW,
+		EZWIFI_LR
+	};
+
 	enum WifiState_t {
 		EZWIFI_NOT_INIT,
 		EZWIFI_WAITING,
@@ -544,6 +553,14 @@ class ezSettings {
 	class ezWifi {
 		public:
 			static std::vector<WifiNetwork_t> networks;
+			static WifiMode_t wifiMode;
+			static uint16_t interval;
+			static uint8_t apChannel;
+			static uint8_t maxConnection;
+			static String apSSID;
+			static String apPassword;
+			static bool ssidHidden;
+			static bool authmode;
 			static bool autoConnect;
 			static void begin();
 			static void add(String ssid, String key);
@@ -556,13 +573,22 @@ class ezSettings {
 			static uint32_t loop();
 			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 			static String updateError();
+			static String strWiFiMode();
 		private:
 			static WifiState_t _state;
 			static uint8_t _current_from_scan;
 			static uint32_t _wait_until, _widget_time;
 			static void _drawWidget(uint16_t x, uint16_t w);
+			static bool _manageMode(ezMenu* callingMenu);
 			static bool _onOff(ezMenu* callingMenu);
 			static void _manageAutoconnects();
+			static bool _manageSSID(ezMenu* callingMenu);
+			static bool _manageAuth(ezMenu* callingMenu);
+			static bool _managePassword(ezMenu* callingMenu);
+			static bool _manageChannel(ezMenu* callingMenu);
+			static bool _manageMaxCon(ezMenu* callingMenu);
+			static bool _yesNo(ezMenu* callingMenu);
+			static bool _manageInterval(ezMenu* callingMenu);
 			static bool _autoconnectSelected(ezMenu* callingMenu);
 			static void _askAdd();
 			static bool _connection(ezMenu* callingMenu);

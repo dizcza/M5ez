@@ -1115,6 +1115,14 @@ void ezSettings::defaults() {
 	std::vector<WifiNetwork_t> ezWifi::networks;
 	ezProgressBar* ezWifi::_update_progressbar;
 	String ezWifi::_update_error;
+	WifiMode_t ezWifi::wifiMode;
+	uint16_t ezWifi::interval;
+	uint8_t ezWifi::apChannel;
+	uint8_t ezWifi::maxConnection;
+	String ezWifi::apSSID;
+	String ezWifi::apPassword;
+	bool ezWifi::ssidHidden;
+	bool ezWifi::authmode;
 	bool ezWifi::autoConnect;
 	#ifdef M5EZ_WPS
 		WiFiEvent_t ezWifi::_WPS_event;
@@ -1194,6 +1202,14 @@ void ezSettings::defaults() {
 		Preferences prefs;
 		networks.clear();
 		prefs.begin("M5ez", true);	// true: read-only
+		wifiMode = (WifiMode_t)prefs.getUChar("wifimode", (uint8_t)EZWIFI_STA);
+		interval  = prefs.getUShort("interval", 100);
+		apChannel = prefs.getUChar("apchannel", 2);
+		maxConnection = prefs.getUChar("maxcon", 3);
+		apSSID = prefs.getString("apssid", "NTP Server");
+		apPassword = prefs.getString("appasword", "NTPassword");
+		ssidHidden = prefs.getBool("hidessid", false);
+		authmode = prefs.getBool("authmode", true);
 		autoConnect = prefs.getBool("autoconnect_on", true);
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("wifiReadFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
@@ -1235,6 +1251,14 @@ void ezSettings::defaults() {
 			prefs.remove(idx.c_str());
 			n++;
 		}
+		prefs.putUChar("wifimode", (uint8_t)wifiMode);
+		prefs.getUShort("interval", interval);
+		prefs.getUChar("apchannel", apChannel);
+		prefs.getUChar("maxcon", maxConnection);
+		prefs.getString("apssid", apSSID);
+		prefs.getString("appasword", apPassword);
+		prefs.getBool("hidessid", ssidHidden);
+		prefs.getBool("authmode", authmode);
 		prefs.putBool("autoconnect_on", autoConnect);
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
@@ -1260,15 +1284,132 @@ void ezSettings::defaults() {
 		#endif
 		ezMenu wifimain ("Wifi settings");
 		wifimain.txtSmall();
-		wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
-		wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
-		wifimain.addItem("Manage autoconnects", _manageAutoconnects);
+		wifimain.addItem("wifimode | Mode\t" + strWiFiMode(), NULL, _manageMode);
+		if(wifiMode == EZWIFI_STA){
+			wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
+			wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
+			wifimain.addItem("Manage autoconnects", _manageAutoconnects);
+		} else if(wifiMode == EZWIFI_AP){
+			//WiFi.softAP(APSSID, APPSK, CHANNEL, HIDE_SSID, MAX_CONNECTION);
+			wifimain.addItem("ssid | AP SSID\t" + apSSID, NULL, _manageSSID);
+			wifimain.addItem("authmode | Authentication\t" + (String)(authmode ? "OPEN" : "WPA2"), NULL, _manageAuth);
+			wifimain.addItem("password | Password\t" + apPassword, NULL, _managePassword);
+			wifimain.addItem("channel | Channel\t" + String(apChannel), NULL, _manageChannel);
+			wifimain.addItem("maxcon | Max connections\t" + String(maxConnection), NULL, _manageMaxCon);
+			wifimain.addItem("hidessid | SSID hiden\t" + (String)(ssidHidden ? "YES" : "NO"), NULL, _yesNo);
+			wifimain.addItem("beacon_interval | Beacon interval\t" + (String)(interval < 1000 ? String(interval) + "ms" : String(interval / 1000) + "s"), NULL, _manageInterval);
+		} else if(wifiMode == EZWIFI_APSTA){
+			wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
+			wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
+			wifimain.addItem("Manage autoconnects", _manageAutoconnects);
+			//WiFi.softAP(APSSID, APPSK, CHANNEL, HIDE_SSID, MAX_CONNECTION);
+			wifimain.addItem("ssid | AP SSID\t" + apSSID, NULL, _manageSSID);
+			wifimain.addItem("authmode | Authentication\t" + (String)(authmode ? "OPEN" : "WPA2"), NULL, _manageAuth);
+			wifimain.addItem("password | Password\t" + apPassword, NULL, _managePassword);
+			wifimain.addItem("channel | Channel\t" + String(apChannel), NULL, _manageChannel);
+			wifimain.addItem("maxcon | Max connections\t" + String(maxConnection), NULL, _manageMaxCon);
+			wifimain.addItem("hidessid | SSID hiden\t" + (String)(ssidHidden ? "YES" : "NO"), NULL, _yesNo);
+			wifimain.addItem("beacon_interval | Beacon interval\t" + (String)(interval < 1000 ? String(interval) + "ms" : String(interval / 1000) + "s"), NULL, _manageInterval);
+		}
 		wifimain.buttons("up#Back#select##down#");
 		wifimain.run();
 		_state = EZWIFI_IDLE;
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("EZWIFI: Enabling autoconnect exiting Wifi menu.");
 		#endif
+	}
+
+	String ezWifi::strWiFiMode(void){
+		String sWiFiMode;
+		switch(wifiMode){
+			case WIFI_MODE_NULL:
+			default:
+				sWiFiMode = "OFF";
+				break;
+			case WIFI_MODE_STA:
+				sWiFiMode = "STA";
+				break;
+			case WIFI_MODE_AP:
+				sWiFiMode = "AP";
+				break;
+			case WIFI_MODE_APSTA:
+				sWiFiMode = "AP+STA";
+				break;
+			case WIFI_MODE_MAX:
+				sWiFiMode = "MAX";
+				break;
+		}
+		return sWiFiMode;
+	}
+
+	bool ezWifi::_manageMode(ezMenu* callingMenu) {
+		uint8_t mode = (uint8_t)wifiMode;
+		mode += 1;
+		mode %= 4;
+		wifiMode = (WifiMode_t)mode;
+		callingMenu->setCaption("wifimode", "Mode\t" + strWiFiMode());
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_manageSSID(ezMenu* callingMenu){
+		callingMenu->setCaption("ssid", "AP SSID\t" + apSSID);
+		ez.wifi.writeFlash();
+		return true;
+	}
+	
+	bool ezWifi::_manageAuth(ezMenu* callingMenu){
+		authmode = !authmode;
+		callingMenu->setCaption("authmode", "Authentication\t" + (String)(authmode ? "OPEN" : "WPA2"));
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_managePassword(ezMenu* callingMenu){
+		callingMenu->setCaption("password", "Password\t" + apPassword);
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_manageChannel(ezMenu* callingMenu){
+		apChannel += 1;
+		if(apChannel == 11) apChannel = 1;
+		callingMenu->setCaption("channel", "Channel\t" + String(apChannel));
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_manageMaxCon(ezMenu* callingMenu) {
+		maxConnection += 1;
+		if(maxConnection == 9) maxConnection = 1;
+		callingMenu->setCaption("maxcon", "Max connections\t" + String(maxConnection));
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_yesNo(ezMenu* callingMenu) {
+		ssidHidden = !ssidHidden;
+		callingMenu->setCaption("hidessid", "SSID hidden\t" + (String)(ssidHidden ? "YES" : "NO"));
+		ez.wifi.writeFlash();
+		return true;
+	}
+
+	bool ezWifi::_manageInterval(ezMenu* callingMenu){
+		uint16_t intStep = 100;
+		if(interval <= 900){
+			// interval < 1000 - do nothing
+		} else if(interval <= 9000){
+			intStep = 1000;
+		} else if(interval <= 50000){
+			intStep = 10000;
+		} else {
+			intStep = 100;
+			interval = 0;
+		}
+		interval += intStep;
+		callingMenu->setCaption("beacon_interval", "Beacon interval\t" + (String)(interval < 1000 ? String(interval) + "ms" : String(interval / 1000) + "s"));
+		ez.wifi.writeFlash();
+		return true;
 	}
 
 	bool ezWifi::_onOff(ezMenu* callingMenu) {
