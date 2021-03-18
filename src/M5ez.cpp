@@ -1207,7 +1207,7 @@ void ezSettings::defaults() {
 		apChannel = prefs.getUChar("apchannel", 2);
 		maxConnection = prefs.getUChar("maxcon", 3);
 		apSSID = prefs.getString("apssid", "NTP Server");
-		apPassword = prefs.getString("appasword", "NTPassword");
+		apPassword = prefs.getString("appassword", "NTPassword");
 		ssidHidden = prefs.getBool("hidessid", false);
 		authmode = prefs.getBool("authmode", true);
 		autoConnect = prefs.getBool("autoconnect_on", true);
@@ -1252,13 +1252,13 @@ void ezSettings::defaults() {
 			n++;
 		}
 		prefs.putUChar("wifimode", (uint8_t)wifiMode);
-		prefs.getUShort("interval", interval);
-		prefs.getUChar("apchannel", apChannel);
-		prefs.getUChar("maxcon", maxConnection);
-		prefs.getString("apssid", apSSID);
-		prefs.getString("appasword", apPassword);
-		prefs.getBool("hidessid", ssidHidden);
-		prefs.getBool("authmode", authmode);
+		prefs.putUShort("interval", interval);
+		prefs.putUChar("apchannel", apChannel);
+		prefs.putUChar("maxcon", maxConnection);
+		prefs.putString("apssid", apSSID);
+		prefs.putString("appassword", apPassword);
+		prefs.putBool("hidessid", ssidHidden);
+		prefs.putBool("authmode", authmode);
 		prefs.putBool("autoconnect_on", autoConnect);
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
@@ -1353,8 +1353,11 @@ void ezSettings::defaults() {
 	}
 
 	bool ezWifi::_manageSSID(ezMenu* callingMenu){
-		callingMenu->setCaption("ssid", "AP SSID\t" + apSSID);
-		ez.wifi.writeFlash();
+		if (ez.msgBox("SSID", "To enter AP SSID press | 'Go' | or Back to return", "Back # # Go") == "Go") {
+			String apSSID = ez.textInput();
+			callingMenu->setCaption("ssid", "AP SSID\t" + apSSID);
+			ez.wifi.writeFlash();
+		}
 		return true;
 	}
 	
@@ -1366,8 +1369,11 @@ void ezSettings::defaults() {
 	}
 
 	bool ezWifi::_managePassword(ezMenu* callingMenu){
-		callingMenu->setCaption("password", "Password\t" + apPassword);
-		ez.wifi.writeFlash();
+		if (ez.msgBox("SSID", "To enter AP password press | 'Go' | or Back to return", "Back # # Go") == "Go") {
+			String apPassword = ez.textInput();
+			callingMenu->setCaption("password", "Password\t" + apPassword);
+			ez.wifi.writeFlash();
+		}
 		return true;
 	}
 
