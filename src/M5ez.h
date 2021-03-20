@@ -536,6 +536,11 @@ class ezSettings {
 		EZWIFI_LR
 	};
 
+	enum WifiServer_t {
+		EZWIFI_UDP,
+		EZWIFI_TCP
+	};
+
 	enum WifiState_t {
 		EZWIFI_NOT_INIT,
 		EZWIFI_WAITING,
@@ -553,14 +558,16 @@ class ezSettings {
 	class ezWifi {
 		public:
 			static std::vector<WifiNetwork_t> networks;
-			static WifiMode_t wifiMode;
+			static uint8_t wifiMode;
 			static uint16_t interval;
 			static uint8_t apChannel;
 			static uint8_t maxConnection;
 			static String apSSID;
 			static String apPassword;
+			static String sAuthMode;
 			static bool ssidHidden;
-			static bool authmode;
+			static bool serverToRun;
+			static uint8_t authMode;
 			static bool autoConnect;
 			static void begin();
 			static void add(String ssid, String key);
@@ -574,6 +581,7 @@ class ezSettings {
 			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 			static String updateError();
 			static String strWiFiMode();
+			static String strAuthMode();
 		private:
 			static WifiState_t _state;
 			static uint8_t _current_from_scan;
@@ -588,6 +596,7 @@ class ezSettings {
 			static bool _manageChannel(ezMenu* callingMenu);
 			static bool _manageMaxCon(ezMenu* callingMenu);
 			static bool _yesNo(ezMenu* callingMenu);
+			static bool _udpTcp(ezMenu* callingMenu);
 			static bool _manageInterval(ezMenu* callingMenu);
 			static bool _autoconnectSelected(ezMenu* callingMenu);
 			static void _askAdd();
