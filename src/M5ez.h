@@ -61,7 +61,7 @@
 #define NO_COLOR			TFT_TRANSPARENT
 
 #define TFT_W		320
-#define TFT_H		240
+#define TFT_H		480
 
 struct line_t {
 	int16_t position;
@@ -240,11 +240,11 @@ class ezCanvas : public Print {
 		static void begin();
 		static void reset();
 		static void clear();
-		static uint8_t top();
-		static uint8_t bottom();
+		static uint16_t top();
+		static uint16_t bottom();
 		static uint16_t left();
 		static uint16_t right();
-		static uint8_t height();
+		static uint16_t height();
 		static uint16_t width();
 		static bool scroll();
 		static void scroll(bool s);
@@ -256,11 +256,11 @@ class ezCanvas : public Print {
 		static const GFXfont* font();
 		static void color(uint16_t color);
 		static uint16_t color();
-		static void pos(uint16_t x, uint8_t y);
+		static void pos(uint16_t x, uint16_t y);
 		static uint16_t x();
 		static void x(uint16_t newx);
-		static uint8_t y();
-		static void y(uint8_t newy);
+		static uint16_t y();
+		static void y(uint16_t newy);
 		virtual size_t write(uint8_t c);						// These three are used to inherint print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
@@ -268,9 +268,9 @@ class ezCanvas : public Print {
 	private:
 		static std::vector<print_t> _printed;
 		static uint32_t _next_scroll;
-		static void top(uint8_t newtop);
-		static void bottom(uint8_t newbottom);
-		static uint8_t _y, _top, _bottom;
+		static void top(uint16_t newtop);
+		static void bottom(uint16_t newbottom);
+		static uint16_t _y, _top, _bottom;
 		static uint16_t _x, _left, _right, _lmargin;
 		static bool _wrap, _scroll;
 		static const GFXfont* _font;

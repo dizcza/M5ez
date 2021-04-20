@@ -241,7 +241,7 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
+uint16_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
 uint16_t ezCanvas::_x, ezCanvas::_left, ezCanvas::_right, ezCanvas::_lmargin;
 const GFXfont* ezCanvas::_font;
 uint16_t ezCanvas::_color;
@@ -275,15 +275,15 @@ void ezCanvas::clear() {
 	_printed.clear();
 }
 
-uint8_t ezCanvas::top() { return _top; }
+uint16_t ezCanvas::top() { return _top; }
 
-uint8_t ezCanvas::bottom() { return _bottom; }
+uint16_t ezCanvas::bottom() { return _bottom; }
 
 uint16_t ezCanvas::left() { return _left; }
 
 uint16_t ezCanvas::right() { return _right; }
 
-uint8_t ezCanvas::height() { return _bottom - _top + 1;}
+uint16_t ezCanvas::height() { return _bottom - _top + 1;}
 
 uint16_t ezCanvas::width() { return _right - _left + 1; }
 
@@ -310,7 +310,7 @@ void ezCanvas::color(uint16_t color) { _color = color; }
 
 uint16_t ezCanvas::color() { return _color; }
 
-void ezCanvas::pos(uint16_t x, uint8_t y) {
+void ezCanvas::pos(uint16_t x, uint16_t y) {
 	_x = x;
 	_y = y;
 }
@@ -319,16 +319,16 @@ uint16_t ezCanvas::x() { return _x; }
 
 void ezCanvas::x(uint16_t x) { _x = x; }
 
-uint8_t ezCanvas::y() { return _y; }
+uint16_t ezCanvas::y() { return _y; }
 
-void ezCanvas::y(uint8_t y) { _y = y; }
+void ezCanvas::y(uint16_t y) { _y = y; }
 		
-void ezCanvas::top(uint8_t newtop) {
+void ezCanvas::top(uint16_t newtop) {
 	if (_y < newtop) _y = newtop;
 	_top = newtop;
 }
 
-void ezCanvas::bottom(uint8_t newbottom) {
+void ezCanvas::bottom(uint16_t newbottom) {
 	_bottom = newbottom;
 }
 
@@ -392,7 +392,7 @@ void ezCanvas::_print(String text) {
  	ez.setFont(_font);
  	m5.lcd.setTextDatum(TL_DATUM);
 	m5.lcd.setTextColor(_color, ez.theme->background);
- 	uint8_t h = ez.fontHeight();
+ 	uint16_t h = ez.fontHeight();
  	if (_y + h > _bottom) {
  		if (!_scroll) return;
  		if (!_next_scroll) _next_scroll = millis() + 200;
@@ -429,7 +429,7 @@ void ezCanvas::_print(String text) {
 
 void ezCanvas::_putString(String text) {
 	ez.setFont(_font);
-	uint8_t h = ez.fontHeight();
+	uint16_t h = ez.fontHeight();
 	if (_scroll) {
 		print_t p;
 		p.font = _font;
@@ -3022,11 +3022,17 @@ ezMenu::~ezMenu() {
 	if(this == M5ez::_currentMenu) M5ez::_currentMenu = nullptr;
 }
 
-void ezMenu::txtBig() { _font = ez.theme->menu_big_font; }
+void ezMenu::txtBig() {
+	_font = ez.theme->menu_big_font;
+}
 
-void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
+void ezMenu::txtSmall() {
+	_font = ez.theme->menu_small_font;
+}
 
-void ezMenu::txtFont(const GFXfont* font) { _font = font; }
+void ezMenu::txtFont(const GFXfont* font) {
+	_font = font;
+}
 
 bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction, drawFunction);
