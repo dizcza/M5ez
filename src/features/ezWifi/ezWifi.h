@@ -30,7 +30,7 @@ class ezWifi {
 		static int8_t indexForSSID(String ssid);
 		static void readFlash();
 		static void writeFlash();
-		static uint16_t loop();
+		static uint32_t loop();
 		static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 		static String updateError();
 		static bool autoConnect;

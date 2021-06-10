@@ -80,7 +80,7 @@ If you feel anything is still unclear after reading this document, please file a
 
 As you can see from the examples, the commands that activate M5ez's functionality start with `ez.`. That `ez` refers to an object `ez` that is within the "root namespace" of the sketch. Within it are commands like `ez.msgBox`, but also other objects. For instance: commands that deal with the entire screen are prefixed with `ez.screen.`, WiFi commands start with `ez.wifi.` and so forth.
 
-After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `m5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5Stack.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
+After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `m5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5StX.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
 
 &nbsp;
 
@@ -541,7 +541,7 @@ Menus are a way of letting users choose between different options, usually to in
 To create a menu we create an instance of the `ezMenu` object. By having each menu be it's own instance of that object, we can store information that will disappear from RAM if a submenu closes and we can return to higher menus which have kept their state. let's start with a complete sketch for a very simple text menu:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -572,7 +572,7 @@ Which is all fine and well if that's our main menu, but it doesn't work if if th
 Let's see our sketch again, this time with a submenu added:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -614,7 +614,7 @@ As you can see, the submenu called `subMenu` has three items that do nothing bec
 Until now we have considered menus that run all by themselves, unless they exit when a user selects an option named "Back", "Exit" or "Done". But you can also call `yourMenu.runOnce()` which will exit every time a user selects an option (but still after executing the supplied function or functions). Take a look at this:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -639,7 +639,7 @@ void loop() {
 This does exactly the same as the first example we started with. Note that `.runOnce()` returns an integer that holds the position of the item selected. So the following would be yet another way to get the same functionality:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {

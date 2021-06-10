@@ -50,7 +50,7 @@ void ezWifi::begin() {
 	_state = EZWIFI_IDLE;
 	const uint8_t cutoffs[] = { 0, 20, 40, 70 };
 	ez.settings.menuObj.addItem("Wifi settings", menu);
-	ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, _drawWidget);
+	ez.header.insert(ez.header.position("battery"), "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, _drawWidget);
 	// For handling issue #50, when initial connection attempt fails in this specific mode but will succeed if tried again.
 	WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
 		if(WIFI_REASON_ASSOC_FAIL == info.disconnected.reason) {
@@ -408,7 +408,7 @@ void ezWifi::_askAdd() {
 	}
 }
 
-uint16_t ezWifi::loop() {
+uint32_t ezWifi::loop() {
 	if (millis() > _widget_time + ez.theme->signal_interval) {
 		ez.header.draw("wifi");
 		_widget_time = millis();
@@ -507,7 +507,7 @@ uint16_t ezWifi::loop() {
 			#endif
 			break;
 	}
-	return 250;
+	return 250000;	//250ms
 }
 
 bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {

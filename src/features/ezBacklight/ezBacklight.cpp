@@ -6,10 +6,14 @@
 #define USER_SET	255
 
 
-uint8_t ezBacklight::_brightness;
+uint8_t ezBacklight::_lcd_brightness;
+uint8_t ezBacklight::_btn_brightness;
 uint8_t ezBacklight::_inactivity;
 uint32_t ezBacklight::_last_activity;
 bool ezBacklight::_backlight_off = false;
+uint32_t ezBacklight::_BtnA_LastChg = 0;
+uint32_t ezBacklight::_BtnB_LastChg = 0;
+uint32_t ezBacklight::_BtnC_LastChg = 0;
 
 
 bool ezBacklight::entry(uint8_t command, void* /* user */) {
@@ -29,81 +33,95 @@ void ezBacklight::begin() {
 	ez.settings.menuObj.addItem("Backlight settings", ezBacklight::menu);
 	Preferences prefs;
 	prefs.begin("M5ez", true);	// read-only
-	_brightness = prefs.getUChar("brightness", 128);
+	_lcd_brightness = prefs.getUChar("lcd_brightness", ez.theme->lcd_brightness_default);
+	_btn_brightness = prefs.getUChar("btn_brightness", ez.theme->btn_brightness_default);
 	_inactivity = prefs.getUChar("inactivity", NEVER);
 	prefs.end();
-	m5.lcd.setBrightness(_brightness);
+	ez.backlight.inactivity(USER_SET);
+	setLcdBrightness(_lcd_brightness);
+	setBtnBrightness(_btn_brightness);
 }
 
 void ezBacklight::menu() {
-	uint8_t start_brightness = _brightness;
+	uint8_t start_lcd_brightness = _lcd_brightness;
+	uint8_t start_btn_brightness = _btn_brightness;
 	uint8_t start_inactivity = _inactivity;
 	ezMenu blmenu("Backlight settings");
 	blmenu.txtSmall();
-	blmenu.buttons("up#Back#select##down#");
-	blmenu.addItem("Backlight brightness");
-	blmenu.addItem("Inactivity timeout");
+	#if defined (ARDUINO_M5Stick_C)
+		blmenu.buttons("##select##down#");
+	#else
+		blmenu.buttons("up#Back#select##down#");
+	#endif
+	blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
+	blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)  //M35 or K36
+		blmenu.addItem("blkbd | Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 25) + "%");
+	#endif
 	while(true) {
 		switch (blmenu.runOnce()) {
-			case 1:	
+			case 1:
 				{
-					ezProgressBar bl ("Backlight brightness", "Set brightness", "left#ok#right");
+					if (_inactivity >= 90) {
+						_inactivity = 0;
+					} else {
+						_inactivity += 15;
+					}
+					blmenu.setCaption("timeout", "Inactivity timeout\t" + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
+				}
+				break;
+			case 2:	
+				{
+					#if defined (ARDUINO_M5Stick_C)
+						ezProgressBar lcdbl ("LCD", "Screen brightness", " ##left##right#");
+					#else
+						ezProgressBar lcdbl ("LCD", "Screen brightness", "left#OK#right");
+					#endif
+					
 					while (true) {
 						String b = ez.buttons.poll();
-						if (b == "right" && _brightness <= 240) _brightness += 16;
-						if (!_brightness) _brightness = 255;
-						if (b == "left" && _brightness > 16) _brightness -= 16;
-						if (_brightness == 239) _brightness = 240;
-						bl.value((float)(_brightness / 2.55));
-						m5.lcd.setBrightness(_brightness);
-						if (b == "ok") break;
+						if (b == "right" && _lcd_brightness < 0xA) _lcd_brightness++;
+						if (_lcd_brightness > 0xA) _lcd_brightness = 0xA;
+						if (b == "left"  && _lcd_brightness > 0x1) _lcd_brightness--;
+						if (_lcd_brightness > 0xA) _lcd_brightness = 0;
+						lcdbl.value((float)_lcd_brightness * 10);
+						setLcdBrightness(_lcd_brightness);
+						if (b == "OK") {
+							blmenu.setCaption("bltft", "Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+							break;
+						}
 					}
 				}
 				break;
-			case 2:
+			#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)  //M35 or K36
+			case 3:
 				{
-					String disp_val;
+					ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
 					while (true) {
-						if (!_inactivity) {
-							disp_val = "Backlight will not turn off";
-						} else if (_inactivity == 1) {
-							disp_val = "Backlight will turn off after 30 seconds of inactivity";
-						} else if (_inactivity == 2) {
-							disp_val = "Backlight will turn off after a minute of inactivity";
-						} else {
-							disp_val = "Backlight will turn off after " + String(_inactivity / 2) + ((_inactivity % 2) ? ".5 " : "") + " minutes of inactivity";
+						String b = ez.buttons.poll();
+						if (b == "right" && _btn_brightness > 0xB) _btn_brightness--;
+						if (b == "left"  && _btn_brightness < 0xF) _btn_brightness++;
+						kbdbl.value((float)(0xF - _btn_brightness) * 25);
+						setBtnBrightness(_btn_brightness);
+						if (b == "OK"){
+							blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 25) + "%");
+							break;
 						}
-						ez.msgBox("Inactivity timeout", disp_val, "-#--#ok##+#++", false);
-						String b = ez.buttons.wait();
-						if (b == "-" && _inactivity) _inactivity--;
-						if (b == "+" && _inactivity < 254) _inactivity++;
-						if (b == "--") {
-							if (_inactivity < 20) {
-								_inactivity = 0;
-							} else {
-								_inactivity -= 20;
-							}
-						}
-						if (b == "++") {
-							if (_inactivity > 234) {
-								_inactivity = 254;
-							} else {
-								_inactivity += 20;
-							}
-						}
-						if (b == "ok") break;
 					}
 				}
 				break;
+			#endif
 			case 0:
-				if (_brightness != start_brightness || _inactivity != start_inactivity) {
+				if (_lcd_brightness != start_lcd_brightness || _btn_brightness != start_btn_brightness || _inactivity != start_inactivity) {
 					Preferences prefs;
 					prefs.begin("M5ez");
-					prefs.putUChar("brightness", _brightness);
+					prefs.putUChar("lcd_brightness", _lcd_brightness);
+					prefs.putUChar("btn_brightness", _btn_brightness);
 					prefs.putUChar("inactivity", _inactivity);
 					prefs.end();
 				}
 				return;
+			//
 		}
 	}
 }
@@ -123,21 +141,92 @@ void ezBacklight::activity() {
 	_last_activity = millis();
 }
 
-uint16_t ezBacklight::loop() {
+uint32_t ezBacklight::loop() {
 	if (!_backlight_off && _inactivity) {
-		if (millis() > _last_activity + 30000 * _inactivity) {
-			_backlight_off = true;
-			m5.lcd.setBrightness(0);
-			while (true) {
-				if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
-				ez.yield();
-				delay(10);
-			}
-			ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
-			m5.lcd.setBrightness(_brightness);
-			activity();
-			_backlight_off = false;
+		if (millis() > _last_activity + 1000 * _inactivity) {
+			_backlight_off = true;	//set it here to turn LDO off on brightness==0
+			setBtnBrightness(0);
+			setLcdBrightness(0);
+			m5.Lcd.writecommand(TFT_DISPOFF);
+			m5.Lcd.writecommand(TFT_SLPIN);
+			ez.yield();
+			_BtnA_LastChg = M5.BtnA.lastChange();
+			_BtnB_LastChg = M5.BtnB.lastChange();
+			_BtnC_LastChg = M5.BtnC.lastChange();
 		}
 	}
-	return 1000;
+	if (_backlight_off) {
+		ez.yield();
+		if (_BtnA_LastChg != M5.BtnA.lastChange() || _BtnB_LastChg != M5.BtnB.lastChange() || _BtnC_LastChg != M5.BtnC.lastChange()) {
+			m5.Lcd.writecommand(TFT_SLPOUT);
+			m5.Lcd.writecommand(TFT_DISPON);
+			setLcdBrightness(_lcd_brightness);
+			setBtnBrightness(_btn_brightness);
+			activity();
+			_backlight_off = false;	//set it here to turn LDO on in setLcdBrightness()
+		}
+	}
+	return 1000000;	//1s
+}
+	
+void ezBacklight::defaults() {
+	_lcd_brightness = ez.theme->lcd_brightness_default;
+	_btn_brightness = ez.theme->btn_brightness_default;
+	setLcdBrightness(_lcd_brightness);
+	setBtnBrightness(_btn_brightness);
+
+	Preferences prefs;
+	prefs.begin("M5ez");
+	prefs.putUChar("lcd_brightness", _lcd_brightness);
+	prefs.putUChar("btn_brightness", _btn_brightness);
+	prefs.end();	
+	_backlight_off = false;	
+	activity();	
+}
+
+uint8_t ezBacklight::getInactivity(){
+	return _inactivity;
+}
+
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }
+#elif defined (ARDUINO_M5Stick_C)
+	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
+		uint8_t brightness = (lcdBrightness * 10) / 13;
+		m5.Axp.ScreenBreath(brightness + 7);
+		if(brightness == 0){
+			if(_backlight_off) {
+				m5.Axp.SetLDO2(false);	//turn LCD_BL LDO completely off to save battery
+				return;
+			}
+		} else if(_backlight_off) {
+			m5.Axp.SetLDO2(true);	//turn LCD_BL LDO on
+		}
+	}
+#elif defined (ARDUINO_M5STACK_Core2)
+	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Axp.SetLcdVoltage(lcdBrightness * 80 + 2500); }
+#elif defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
+	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Ioe.setLcdBrightness(lcdBrightness, LOW); }
+#endif
+
+
+#if defined (_M5STX_CORE_)
+	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
+		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
+	#else
+		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
+	#endif
+#else
+	void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
+#endif
+
+void ezBacklight::wakeup() {
+	if(_backlight_off){
+		m5.Lcd.writecommand(TFT_DISPON);
+		m5.Lcd.writecommand(TFT_SLPOUT);
+		setBtnBrightness(_btn_brightness);
+		setLcdBrightness(_lcd_brightness);
+		_backlight_off = false;
+	}
+	activity();
 }

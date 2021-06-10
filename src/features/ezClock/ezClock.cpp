@@ -8,6 +8,7 @@ bool ezClock::_on;
 String ezClock::_timezone;
 bool ezClock::_clock12;
 bool ezClock::_am_pm;
+bool ezClock::_date_on;
 String ezClock::_datetime;
 bool ezClock::_starting = true;
 
@@ -35,6 +36,7 @@ void ezClock::begin() {
 	prefs.begin("M5ez", true);	// read-only
 	_on = prefs.getBool("clock_on", true);
 	_timezone = prefs.getString("timezone", "GeoIP");
+	_date_on = prefs.getBool("date_on", false);
 	_clock12 = prefs.getBool("clock12", false);
 	_am_pm = prefs.getBool("ampm", false);
 	prefs.end();
@@ -49,24 +51,25 @@ void ezClock::restart() {
 	if (_on) {
 		if (_clock12) {
 			if (_am_pm) {
-				_datetime = "g:ia";
+				_datetime = _date_on ? "d.m.y g:ia" : "g:ia";
 				length = 7;
 			} else {
-				_datetime = "g:i";
+				_datetime = _date_on ? "d.m.y g:i" : "g:i";
 				length = 5;
 			}
 		} else {
-			_datetime = "H:i";
+			_datetime = _date_on ? "d.m.y H:i" : "H:i";
 			length = 5;
 		}
 		ez.setFont(ez.theme->clock_font);
 		uint8_t width = length * m5.lcd.textWidth("5") + ez.theme->header_hmargin * 2;
-		ez.header.insert(RIGHTMOST, "clock", width, ezClock::draw);
+		ez.header.insert(ez.header.position("wifi"), "clock", width, ezClock::draw);
 	}
 }
 
 void ezClock::menu() {
 	bool on_orig = _on;
+	bool date_on_orig = _date_on;
 	bool clock12_orig = _clock12;
 	bool am_pm_orig = _am_pm;
 	String tz_orig = _timezone;
@@ -77,6 +80,7 @@ void ezClock::menu() {
 		clockmenu.addItem("on|Display clock\t" + (String)(_on ? "on" : "off"));
 		if (_on) {
 			clockmenu.addItem("tz|Timezone\t" + _timezone);
+			clockmenu.addItem("date|Show date\t" + (String)(_date_on ? "on" : "off"));
 			clockmenu.addItem("1224|12/24 hour\t" + (String)(_clock12 ? "12" : "24"));
 			if (_clock12) {
 				clockmenu.addItem("ampm|am/pm indicator\t" + (String)(_am_pm ? "on" : "off"));
@@ -93,15 +97,19 @@ void ezClock::menu() {
 				if (tz.setLocation(_timezone)) _timezone = tz.getOlsen();
 				break;
 			case 3:
-				_clock12 = !_clock12;
+				_date_on = !_date_on;
 				ezClock::restart();
 				break;
 			case 4:
+				_clock12 = !_clock12;
+				ezClock::restart();
+				break;
+			case 5:
 				_am_pm = !_am_pm;
 				ezClock::restart();
 				break;
 			case 0:
-				if (_am_pm != am_pm_orig || _clock12 != clock12_orig || _on != on_orig || _timezone != tz_orig) {
+				if (_am_pm != am_pm_orig || _clock12 != clock12_orig || _on != on_orig || _timezone != tz_orig || _date_on != date_on_orig) {
 					_writePrefs();
 				}
 				return;
@@ -109,7 +117,7 @@ void ezClock::menu() {
 	}
 }
 
-uint16_t ezClock::loop() {
+uint32_t ezClock::loop() {
 	ezt::events();
 	if (_starting && timeStatus() != timeNotSet) {
 		_starting = false;
@@ -123,7 +131,7 @@ uint16_t ezClock::loop() {
 	} else {
 		if (_on && ezt::minuteChanged()) ez.header.draw("clock");
 	}
-	return 250;
+	return 250000;	//250ms
 }
 
 void ezClock::draw(uint16_t x, uint16_t w) {
@@ -140,6 +148,7 @@ void ezClock::_writePrefs() {
 	prefs.begin("M5ez");
 	prefs.putBool("clock_on", _on);
 	prefs.putString("timezone", _timezone);
+	prefs.putBool("date_on", _date_on);
 	prefs.putBool("clock12", _clock12);
 	prefs.putBool("ampm", _am_pm);
 	prefs.end();

@@ -4,7 +4,52 @@
 #define M5EZ_VERSION		"2.4.0"
 
 #include <vector>			// std::vector
-#include <M5Stack.h>		// GFXfont*
+
+#define _M5STX_CORE_
+
+#if defined (_M5STX_CORE_)
+	#include <M5StX.h>
+#else
+	#define TFT_SLPIN           0x10
+	#define TFT_SLPOUT          0x11
+	#define TFT_DISPOFF         0x28
+	#define TFT_DISPON          0x29
+
+	#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+		#include <M5Stack.h>
+	#elif defined ( ARDUINO_M5Stick_C )	//Tested on M5StickC Plus
+	// 	#include <M5StickC.h>
+	// #elif defined (ARDUINO_M5Stick_C_Plus) //setRotation() does not work with CC
+		#include "M5StickCPlus.h"
+	#elif defined (ARDUINO_M5STACK_Core2)
+		#include <M5Core2.h>
+	#elif defined (ARDUINO_ESP32_DEV)
+		#include <M5Stack.h>
+	#endif
+#endif
+
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
+	#define TFT_W		320
+	#define TFT_H		240
+#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+	#define TFT_W		240
+	#define TFT_H		320
+#elif defined (ARDUINO_M5Stick_C)
+// 	#define TFT_W		160
+// 	#define TFT_H		 80
+// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
+	#define TFT_W		240
+	#define TFT_H		135
+#elif defined (ARDUINO_M5STACK_Core2)
+	#define TFT_W		320
+	#define TFT_H		240
+#elif defined (ARDUINO_ESP32_DEV)	//M35
+	#define TFT_W		320
+	#define TFT_H		480
+#elif defined (ARDUINO_D1_MINI32)	//K36
+	#define TFT_W		320
+	#define TFT_H		240
+#endif
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
@@ -26,9 +71,6 @@
 
 #define NO_COLOR			TFT_TRANSPARENT
 
-#define TFT_W		320
-#define TFT_H		240
-
 // Feature messages, used in ez.tell() and feature.entry()
 #define FEATURE_MSG_PING			0	// Required (return true)
 #define FEATURE_MSG_START			1	// Required
@@ -41,11 +83,11 @@
 // FEATURE_... 6 - 99 reserved. 100+ for specific feature use
 
 #define FEATURE_INSTALL_EZWIFI			// Enable built-in feature ezWifi
-#define FEATURE_INSTALL_EZFACES			// Enable built-in feature ezFACES
+//#define FEATURE_INSTALL_EZFACES			// Enable built-in feature ezFACES
 #define FEATURE_INSTALL_EZBACKLIGHT		// Enable built-in feature ezBacklight
 #define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
 #define FEATURE_INSTALL_EZBATTERY		// Enable built-in feature ezBattery
-#define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
+//#define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
 
 // For compatability defines in M5ez object
 #ifdef FEATURE_INSTALL_EZWIFI
@@ -96,7 +138,8 @@ class ezTheme {
 		static bool select(String name);
 		static void menu();
 
-		String name = "Default";								// Change this when making theme
+		String name = "sansDefault";								// Change this when making theme
+		String displayName = "sans Default";						// To be translated to user language
 		uint16_t background = 0xEF7D;
 		uint16_t foreground = TFT_BLACK;
 		uint8_t header_height = 23;
@@ -104,72 +147,75 @@ class ezTheme {
 		uint8_t header_hmargin = 5;
 		uint8_t header_tmargin = 3;
 		uint16_t header_bgcolor = TFT_BLUE;
-		uint16_t header_fgcolor = TFT_WHITE;
+		uint16_t header_fgcolor = TFT_WHITE;					
 
-		const GFXfont* print_font = mono6x8;
-		uint16_t print_color = foreground;
-
-		const GFXfont* clock_font = mono12x16;
+		const GFXfont* print_font = mono6x8;					
+		uint16_t print_color = foreground;					
+		
+		const GFXfont* clock_font = &FreeMonoBold9pt7b;
 
 		uint16_t longpress_time = 250;							//milliseconds
 
-		uint8_t button_height = 19;
-		const GFXfont* button_font = &FreeSans9pt7b;
-		uint8_t button_tmargin = 1;
-		uint8_t button_hmargin = 5;
-		uint8_t button_gap = 3;
-		uint8_t button_radius = 8;
-		uint16_t button_bgcolor_b = TFT_BLUE;
-		uint16_t button_bgcolor_t = TFT_PURPLE;
-		uint16_t button_fgcolor = TFT_WHITE;
-		uint16_t button_longcolor = TFT_CYAN;
+		uint8_t button_height = 19;								
+		const GFXfont* button_font = &FreeSans9pt7b;			
+		uint8_t button_tmargin = 1;								
+		uint8_t button_hmargin = 5;								
+		uint8_t button_gap = 3;									
+		uint8_t button_radius = 8;								
+		uint16_t button_bgcolor_b = TFT_BLUE;					
+		uint16_t button_bgcolor_t = TFT_PURPLE;					
+		uint16_t button_fgcolor = TFT_WHITE;					
+		uint16_t button_longcolor = TFT_CYAN;					
 
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen
 		uint8_t input_vmargin = 10;								// Vertical margin _inside_ the text box
-		const GFXfont* input_font = &FreeMonoBold12pt7b;
+		const GFXfont* input_font = &FreeMonoBold12pt7b;		
 		const GFXfont* input_keylock_font = &FreeSansBold9pt7b;
-		uint16_t input_bgcolor = TFT_BLACK;
-		uint16_t input_fgcolor = TFT_GREEN;
+		uint16_t input_bgcolor = TFT_BLACK;						
+		uint16_t input_fgcolor = TFT_GREEN;						
 		uint16_t input_cursor_blink = 500;						// milliseconds
-		uint8_t input_faces_btns = 18;
+		uint8_t input_faces_btns = 18;							
 
-		const GFXfont* tb_font = &FreeSans9pt7b;
-		uint16_t tb_color = foreground;
+		const GFXfont* tb_font = &FreeSans9pt7b;				
+		uint16_t tb_color = foreground;							
 		uint8_t tb_hmargin = 5;
 
-		uint8_t menu_lmargin = 20;
+		uint8_t menu_lmargin = 20;								
 		uint8_t menu_rmargin = 10;
-		uint8_t menu_arrows_lmargin = 5;
-		uint16_t menu_item_color = foreground;
-		uint16_t menu_sel_bgcolor = foreground;
-		uint16_t menu_sel_fgcolor = background;
-		const GFXfont* menu_big_font = &FreeSans12pt7b;
-		const GFXfont* menu_small_font = &FreeSans9pt7b;
-		uint8_t menu_item_hmargin = 10;
+		uint8_t menu_arrows_lmargin = 5;							
+		uint16_t menu_item_color = foreground;					
+		uint16_t menu_sel_bgcolor = foreground;					
+		uint16_t menu_sel_fgcolor = background;					
+		const GFXfont* menu_big_font = &FreeSans12pt7b;			
+		const GFXfont* menu_small_font = &FreeSans9pt7b;		
+		uint8_t menu_item_hmargin = 10;							
 		uint8_t menu_item_radius = 8;
 
-		const GFXfont* msg_font = &FreeSans12pt7b;
-		uint16_t msg_color = foreground;
-		uint8_t msg_hmargin = 20;
+		const GFXfont* msg_font = &FreeSans12pt7b;				
+		uint16_t msg_color = foreground;						
+		uint8_t msg_hmargin = 20;								
 
-		uint8_t progressbar_line_width = 4;
-		uint8_t progressbar_width = 25;
-		uint16_t progressbar_color = foreground;
+		uint8_t progressbar_line_width = 4;						
+		uint8_t progressbar_width = 25;							
+		uint16_t progressbar_color = foreground;				
 		uint16_t progressbar_val_color = TFT_DARKGREY;
 
-		uint16_t signal_interval = 2000;
-		uint8_t signal_bar_width = 4;
+		uint16_t signal_interval = 2000;						
+		uint8_t signal_bar_width = 4;							
 		uint8_t signal_bar_gap = 2;
 
-		uint8_t battery_bar_width = 26;
+		uint8_t battery_bar_width = 42;
 		uint8_t battery_bar_gap = 2;
-		uint32_t battery_0_fgcolor = TFT_RED;
+		uint32_t battery_0_fgcolor = TFT_RED; 
 		uint32_t battery_25_fgcolor = TFT_ORANGE;
 		uint32_t battery_50_fgcolor = TFT_YELLOW;
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
-	//
+
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xE;
+	//						
 };
 
 
@@ -253,11 +299,11 @@ class ezCanvas : public Print {
 		static void begin();
 		static void reset();
 		static void clear();
-		static uint8_t top();
-		static uint8_t bottom();
+		static uint16_t top();
+		static uint16_t bottom();
 		static uint16_t left();
 		static uint16_t right();
-		static uint8_t height();
+		static uint16_t height();
 		static uint16_t width();
 		static bool scroll();
 		static void scroll(bool s);
@@ -269,21 +315,21 @@ class ezCanvas : public Print {
 		static const GFXfont* font();
 		static void color(uint16_t color);
 		static uint16_t color();
-		static void pos(uint16_t x, uint8_t y);
+		static void pos(uint16_t x, uint16_t y);
 		static uint16_t x();
 		static void x(uint16_t newx);
-		static uint8_t y();
-		static void y(uint8_t newy);
+		static uint16_t y();
+		static void y(uint16_t newy);
 		virtual size_t write(uint8_t c);						// These three are used to inherit print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
-		static uint16_t loop();
+		static uint32_t loop();
 	private:
 		static std::vector<print_t> _printed;
 		static uint32_t _next_scroll;
-		static void top(uint8_t newtop);
-		static void bottom(uint8_t newbottom);
-		static uint8_t _y, _top, _bottom;
+		static void top(uint16_t newtop);
+		static void bottom(uint16_t newbottom);
+		static uint16_t _y, _top, _bottom;
 		static uint16_t _x, _left, _right, _lmargin;
 		static bool _wrap, _scroll;
 		static const GFXfont* _font;
@@ -458,8 +504,8 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct event_t {
-	uint16_t (*function)();
-	uint32_t when;
+	uint32_t (*function)();
+	uint64_t when;
 };
 class M5ez {
 
@@ -483,8 +529,8 @@ class M5ez {
 		static void begin();
 		static void yield();
 
-		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
-		static void removeEvent(uint16_t (*function)());
+		static void addEvent(uint32_t (*function)(), uint32_t when = 1);
+		static void removeEvent(uint32_t (*function)());
 		static void redraw();
 
 		static ezMenu* getCurrentMenu();

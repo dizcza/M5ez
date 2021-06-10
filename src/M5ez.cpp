@@ -37,16 +37,28 @@ bool ezTheme::select(String name) {
 }
 
 void ezTheme::menu() {
+	uint8_t inactivity = ez.backlight.getInactivity();
 	String orig_name = ez.theme->name;
 	ezMenu thememenu("Theme chooser");
 	thememenu.txtSmall();
 	thememenu.buttons("up#Back#select##down#");
+	thememenu.addItem("timeout | Inactivity timeout\t"  + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
-		thememenu.addItem(ez.themes[n].name);
+		thememenu.addItem((String)(ez.themes[n].name) + "|" + ez.themes[n].displayName);
 	}
 	while(thememenu.runOnce()) {
 		if (thememenu.pick()) {
-			ez.theme->select(thememenu.pickName());
+			if(thememenu.pickName() != "timeout" ){
+				ez.theme->select(thememenu.pickName());
+				ez.backlight.defaults();
+			} else {				
+				if (inactivity >= 90) {
+					inactivity = 0;
+				} else {
+					inactivity += 15;
+				}
+				thememenu.setCaption("timeout", "Inactivity timeout\t" + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+			}
 		}
 	}
 	if (ez.theme->name != orig_name) {
@@ -54,8 +66,12 @@ void ezTheme::menu() {
 		prefs.begin("M5ez");
 		prefs.putString("theme", ez.theme->name);
 		prefs.end();
+		ez.backlight.defaults();
 	}
-	return;
+	if (inactivity != ez.backlight.getInactivity()){
+		ez.backlight.inactivity(inactivity);
+	}
+	return;	
 }
 
 
@@ -214,7 +230,7 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
+uint16_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
 uint16_t ezCanvas::_x, ezCanvas::_left, ezCanvas::_right, ezCanvas::_lmargin;
 const GFXfont* ezCanvas::_font;
 uint16_t ezCanvas::_color;
@@ -248,15 +264,15 @@ void ezCanvas::clear() {
 	_printed.clear();
 }
 
-uint8_t ezCanvas::top() { return _top; }
+uint16_t ezCanvas::top() { return _top; }
 
-uint8_t ezCanvas::bottom() { return _bottom; }
+uint16_t ezCanvas::bottom() { return _bottom; }
 
 uint16_t ezCanvas::left() { return _left; }
 
 uint16_t ezCanvas::right() { return _right; }
 
-uint8_t ezCanvas::height() { return _bottom - _top + 1;}
+uint16_t ezCanvas::height() { return _bottom - _top + 1;}
 
 uint16_t ezCanvas::width() { return _right - _left + 1; }
 
@@ -283,7 +299,7 @@ void ezCanvas::color(uint16_t color) { _color = color; }
 
 uint16_t ezCanvas::color() { return _color; }
 
-void ezCanvas::pos(uint16_t x, uint8_t y) {
+void ezCanvas::pos(uint16_t x, uint16_t y) {
 	_x = x;
 	_y = y;
 }
@@ -292,16 +308,16 @@ uint16_t ezCanvas::x() { return _x; }
 
 void ezCanvas::x(uint16_t x) { _x = x; }
 
-uint8_t ezCanvas::y() { return _y; }
+uint16_t ezCanvas::y() { return _y; }
 
-void ezCanvas::y(uint8_t y) { _y = y; }
+void ezCanvas::y(uint16_t y) { _y = y; }
 
-void ezCanvas::top(uint8_t newtop) {
+void ezCanvas::top(uint16_t newtop) {
 	if (_y < newtop) _y = newtop;
 	_top = newtop;
 }
 
-void ezCanvas::bottom(uint8_t newbottom) {
+void ezCanvas::bottom(uint16_t newbottom) {
 	_bottom = newbottom;
 }
 
@@ -325,11 +341,11 @@ size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
 	return size;
 }
 
-uint16_t ezCanvas::loop() {
+uint32_t ezCanvas::loop() {
 	if (_next_scroll && millis() >= _next_scroll) {
 		ez.setFont(_font);
 		uint8_t h = ez.fontHeight();
-		uint8_t scroll_by = _y - _bottom;
+		uint16_t scroll_by = _y - _bottom;
 		if (_x > _lmargin) scroll_by += h;
 		const GFXfont* hold_font = _font;
 		const uint16_t hold_color = _color;
@@ -357,7 +373,7 @@ uint16_t ezCanvas::loop() {
 		_printed = clean_copy;
 		Serial.println(ESP.getFreeHeap());
 	}
-	return 10;
+	return 10000;	//10ms
 }
 
 
@@ -714,6 +730,9 @@ ezMenu* M5ez::_currentMenu = nullptr;
 bool M5ez::_in_event = false;
 std::vector<event_t> M5ez::_events;
 std::vector<feature_t> M5ez::features = {
+#ifdef FEATURE_INSTALL_EZBATTERY
+	{"ezBattery", ezBattery::entry},
+#endif
 #ifdef FEATURE_INSTALL_EZWIFI
 	{"ezWifi", ezWifi::entry},
 #endif
@@ -726,15 +745,15 @@ std::vector<feature_t> M5ez::features = {
 #ifdef FEATURE_INSTALL_EZCLOCK
 	{"ezClock", ezClock::entry},
 #endif
-#ifdef FEATURE_INSTALL_EZBATTERY
-	{"ezBattery", ezBattery::entry},
-#endif
 #ifdef FEATURE_INSTALL_EZBLE
 	{"ezBLE", ezBLE::entry},
 #endif
 };
 
 // Compatability initialization
+#ifdef FEATURE_INSTALL_EZBATTERY
+	ezBattery M5ez::battery;
+#endif
 #ifdef FEATURE_INSTALL_EZWIFI
 	ezWifi M5ez::wifi;
 #endif
@@ -746,9 +765,6 @@ std::vector<feature_t> M5ez::features = {
 #endif
 #ifdef FEATURE_INSTALL_EZCLOCK
 	ezClock M5ez::clock;
-#endif
-#ifdef FEATURE_INSTALL_EZBATTERY
-	ezBattery M5ez::battery;
 #endif
 #ifdef FEATURE_INSTALL_EZBLE
 	ezBLE M5ez::ble;
@@ -774,12 +790,12 @@ void M5ez::yield() {
 	M5.update();
 	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
-		if (millis() > _events[n].when) {
+		if (micros() > _events[n].when) {
 			M5ez::_in_event = true;		// prevent reentrancy
-			uint16_t r = (_events[n].function)();
+			uint32_t r = (_events[n].function)();
 			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
-				_events[n].when = millis() + r - 1;
+				_events[n].when = micros() + r - 1;
 			} else {
 				_events.erase(_events.begin() + n);
 				break;		// make sure we don't go beyond _events.size() after deletion
@@ -789,14 +805,14 @@ void M5ez::yield() {
 	ez.tell("ezClock", FEATURE_MSG_CLOCK_EVENTS);
 }
 
-void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
+void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;
-	n.when = millis() + when - 1;
+	n.when = micros() + when - 1;
 	_events.push_back(n);
 }
 
-void M5ez::removeEvent(uint16_t (*function)()) {
+void M5ez::removeEvent(uint32_t (*function)()) {
 	uint8_t n = 0;
 	while (n < _events.size()) {
 		if (_events[n].function == function) {
@@ -887,6 +903,7 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 
 	while (true) {
 		key = ez.buttons.poll();
+			Serial.println(key);
 		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
 			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
 		}
