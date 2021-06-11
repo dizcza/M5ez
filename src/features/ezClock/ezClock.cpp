@@ -51,15 +51,15 @@ void ezClock::restart() {
 	if (_on) {
 		if (_clock12) {
 			if (_am_pm) {
-				_datetime = _date_on ? "d.m.y g:ia" : "g:ia";
-				length = 7;
+				_datetime = _date_on ? "m/d/Y g:ia" : "g:ia";
+				length = _date_on ? 19 : 8;
 			} else {
 				_datetime = _date_on ? "d.m.y g:i" : "g:i";
-				length = 5;
+				length = _date_on ? 15 : 6;
 			}
 		} else {
 			_datetime = _date_on ? "d.m.y H:i" : "H:i";
-			length = 5;
+			length = _date_on ? 15 : 6;
 		}
 		ez.setFont(ez.theme->clock_font);
 		uint8_t width = length * m5.lcd.textWidth("5") + ez.theme->header_hmargin * 2;

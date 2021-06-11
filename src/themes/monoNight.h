@@ -20,7 +20,7 @@
 	theme.header_fgcolor = TFT_RED;
 	// theme.GFXfont* print_font = mono6x8;					
 	// theme.print_color = theme.foreground;					
-	// theme.GFXfont* clock_font = &FreeMonoBold12pt7b;
+	// theme.GFXfont* clock_font = mono12x16;
 	// theme.longpress_time = 250;							//milliseconds
 	// theme.button_height = 19;								
 	// theme.GFXfont* button_font = &FreeSans9pt7b;			

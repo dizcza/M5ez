@@ -8,6 +8,26 @@
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
 
+## This fork diffs
+
+* M5Stack, M5Core2 and partially M5Stick device support
+* TFT backlight on all devices
+* TFT_H can be more than 255 for 240x320 and 320x480 TFTs
+* Event repeat time in micros
+* New themes with translatable display names
+* Optional button backlight control added
+* Backlight defaults in themes
+* Inactivity timeout in 15s steps
+* Fix to keep events running during inactivity
+* Screen wakeup from events
+* 8-bar battery charge animation on all devices
+* Battery charging animation
+* Date display setting
+* Reordered widgets with rightmost battery one
+* M5ez-demo example with new features included
+* Unified M5Stack-compatible stack for supported devices
+
+
 ## Introduction
 
 The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
@@ -302,17 +322,17 @@ Now that we're dealing with waiting for key presses, this is a good moment to ta
 
 It could be that your code needs to do things that take a little while. If something takes many seconds, consider putting in an "abort" key. But suppose your code is busy and is not using `ez.buttons.poll` or `ez.buttons.wait` to check for keys. In that case use `ez.yield()` in your loop to make sure the clock and WiFi updating (as well as user defined tasks) get executed. `ez.yield` calls the Arduino `yield` function, so you do not need to call that separately.
 
-### Your own events
+### Your own events 
 
-`void ez.addEvent(uint16_t (*function)(), uint32_t when = 1)`
+`void ez.addEvent(uint32_t (*function)(), uint32_t when = 1)`
 
-`void ez.removeEvent(uint16_t (*function)())`
+`void ez.removeEvent(uint32_t (*function)())`
 
-With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 16-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `millis()`. By default, the function you specify will run immediately.
+With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 32-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `micros()`. By default, the function you specify will run immediately.
 
-The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
+The value returned by your function is the number of microseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000000. If your function returns 0, the event is deleted and not executed any further.
 
-> Note: These events are meant for things that need to happen frequently. The next event cannot be more than 65 seconds out as the period between them is a 16-bit unsigned integer. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
+> Note: Prevoius 16-bit wait time were for things that need to happen not too frequently and did not last long. Now you can use event loop to react on ISR-set flags in less than 1ms and the next event can be up to 71 minutes away as the period between them is a 32-bit unsigned integer of us. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
 
 As the name implies, `ez.removeEvent` also removes your function from the loop.
 
@@ -998,7 +1018,7 @@ BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Lo
 
 ### Battery
 
-The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
+The battery menu allows you to selectively show a battery level icon in the header bar. Due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) on M5Stack it can only show four different battery levels but 8 levels on other M5 devices with AXP192 PMIC. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
 
 &nbsp;
 
@@ -1046,12 +1066,17 @@ That's how the backlight menu item is added to the menu.
 
 ### Including themes
 
-In the `setup()` part of your code, you can include themes from the themes directory. If you include multiple themes, the settings menu will show a theme chooser where the user can choose their theme. For instance, the M5ez demo program offers both the 'default' and the 'dark' theme as follows:
+In the `setup()` part of your code, you can include themes from the themes directory. If you include multiple themes, the settings menu will show a theme chooser where the user can choose their theme. For instance, the M5ez demo program offers several themes to use device in a daylight or at night as follows:
 
 ```
 void setup() {
   #include <themes/default.h>
   #include <themes/dark.h>
+  #include <themes/monoAmber.h>
+  #include <themes/monoDark.h>
+  #include <themes/monoDay.h>
+  #include <themes/monoDayBtn.h>
+  #include <themes/monoNight.h>
   ez.begin();
 }
 ```
