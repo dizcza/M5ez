@@ -4,7 +4,7 @@
 
 #define NEVER		0
 #define USER_SET	255
-
+#define BTN_PWM_CHANNEL 6 // LEDC_CHANNEL_6
 
 uint8_t ezBacklight::_lcd_brightness;
 uint8_t ezBacklight::_btn_brightness;
@@ -39,6 +39,14 @@ void ezBacklight::begin() {
 	prefs.end();
 	ez.backlight.inactivity(USER_SET);
 	setLcdBrightness(_lcd_brightness);
+	#if defined (ARDUINO_Piranha)//piranha_esp-32
+	    // Set up buttons back-light LED
+		pinMode(BTN_BL, OUTPUT);
+		digitalWrite(BTN_BL, HIGH);
+		// Init the buttons back-light LED PWM
+		ledcSetup(BTN_PWM_CHANNEL, 44100, 8);
+		ledcAttachPin(BTN_BL, BTN_PWM_CHANNEL);
+	#endif
 	setBtnBrightness(_btn_brightness);
 }
 
@@ -55,7 +63,7 @@ void ezBacklight::menu() {
 	#endif
 	blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
 	blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
-	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)  //M35 or K36
+	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K45
 		blmenu.addItem("blkbd | Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 25) + "%");
 	#endif
 	while(true) {
@@ -93,7 +101,7 @@ void ezBacklight::menu() {
 					}
 				}
 				break;
-			#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)  //M35 or K36
+			#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K45
 			case 3:
 				{
 					ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
@@ -188,7 +196,7 @@ uint8_t ezBacklight::getInactivity(){
 	return _inactivity;
 }
 
-#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_Piranha) //TTGO T4 v1.3, K44
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }
 #elif defined (ARDUINO_M5Stick_C)
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
@@ -213,6 +221,10 @@ uint8_t ezBacklight::getInactivity(){
 #if defined (_M5STX_CORE_)
 	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
+	#elif defined (ARDUINO_Piranha)
+		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { 
+			ledcWrite(BTN_PWM_CHANNEL, brightness * 2.55); // brightness 0-255
+		}
 	#else
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
 	#endif

@@ -49,6 +49,10 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	#define TFT_W		320
 	#define TFT_H		240
+#elif defined (ARDUINO_Piranha)		//K44v3 - K45
+	#define TFT_W		240
+	#define TFT_H		240
+	#define BTN_BL		 26
 #endif
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
