@@ -223,7 +223,7 @@ uint8_t ezBacklight::getInactivity(){
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
 	#elif defined (ARDUINO_Piranha)
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { 
-			ledcWrite(BTN_PWM_CHANNEL, brightness * 2.55); // brightness 0-255
+			ledcWrite(BTN_PWM_CHANNEL, btnBrightness * 2.55); // brightness 0-255
 		}
 	#else
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
