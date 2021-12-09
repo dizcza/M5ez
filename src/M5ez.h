@@ -49,8 +49,9 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	#define TFT_W		320
 	#define TFT_H		240
-#elif defined (ARDUINO_Piranha)		//K44v3 - K45
-	#define TFT_W		240
+#elif defined (ARDUINO_Piranha)		//K44v3 - K46
+//	#define TFT_W		240			//K45 1.54"
+	#define TFT_W		320			//K46 2.3"
 	#define TFT_H		240
 	#define BTN_BL		 26
 #endif
