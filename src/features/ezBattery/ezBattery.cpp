@@ -120,6 +120,7 @@ void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
 
 bool ezBattery::_isChargeControl() {
 	#if defined (ARDUINO_M5Stack_Core_ESP32)
+		//Serial.print("Can control "); Serial.println(m5.Power.canControl(), DEC);
 		return m5.Power.canControl();
 	#elif defined (ARDUINO_M5STACK_Core2)
 		return false;	// charging is automatic
@@ -129,6 +130,8 @@ bool ezBattery::_isChargeControl() {
 		return false;	// charging is automatic
 	#elif defined (ARDUINO_ESP32_DEV)
 		return true;
+	#elif defined (ARDUINO_Piranha)
+		return false;	// charging is automatic
 	#else
 		return false;	//placeholder for your device method
 	#endif
@@ -160,6 +163,8 @@ void ezBattery::_setCharge(bool enable) {
 		;	// can be done using bit 7 of REG 0x33
 	#elif defined (ARDUINO_ESP32_DEV)
 		;	//placeholder for your device method
+	#elif defined (ARDUINO_Piranha)
+		;
 	#else
 		;	//placeholder for your device method
 	#endif
@@ -176,6 +181,8 @@ void ezBattery::_setLowPowerShutdownTime() {
 		;	//placeholder for your device method
 	#elif defined (ARDUINO_ESP32_DEV)
 		;	//placeholder for your device method
+	#elif defined (ARDUINO_Piranha)
+		;
 	#else
 		;	//placeholder for your device method
 	#endif
@@ -197,6 +204,8 @@ uint8_t ezBattery::_getBatteryLevel() {
 		return 0;
 	#elif defined (ARDUINO_ESP32_DEV)
 		return 50;	//placeholder for your device method
+	#elif defined (ARDUINO_Piranha)
+		return 50;	//placeholder for your device method
 	#else
 		return 50;	//placeholder for your device method
 	#endif
@@ -212,6 +221,8 @@ bool ezBattery::_isChargeFull() {
 	#elif defined (ARDUINO_M5Stick_C)
 		return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
 	#elif defined (ARDUINO_ESP32_DEV)
+		return false;	//placeholder for your device method
+	#elif defined (ARDUINO_Piranha)
 		return false;	//placeholder for your device method
 	#else
 		return false;	//placeholder for your device method
@@ -231,6 +242,8 @@ bool ezBattery::_isCharging() {
 		// 	return true;
 		// }			
 	#elif defined (ARDUINO_ESP32_DEV)
+		return false;	//placeholder for your device method
+	#elif defined (ARDUINO_Piranha)
 		return false;	//placeholder for your device method
 	#else
 		return false;

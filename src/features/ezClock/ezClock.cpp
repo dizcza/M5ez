@@ -5,7 +5,9 @@
 
 Timezone ezClock::tz;
 bool ezClock::_on;
+bool ezClock::_posix_on;
 String ezClock::_timezone;
+String ezClock::_posix;
 bool ezClock::_clock12;
 bool ezClock::_am_pm;
 bool ezClock::_date_on;
@@ -35,8 +37,10 @@ void ezClock::begin() {
 	Preferences prefs;
 	prefs.begin("M5ez", true);	// read-only
 	_on = prefs.getBool("clock_on", true);
+	_posix_on = prefs.getBool("posix_on", true);
+	_posix = prefs.getString("posix", TZ_POSIX);
 	_timezone = prefs.getString("timezone", "GeoIP");
-	_date_on = prefs.getBool("date_on", false);
+	_date_on = prefs.getBool("date_on", true);
 	_clock12 = prefs.getBool("clock12", false);
 	_am_pm = prefs.getBool("ampm", false);
 	prefs.end();
@@ -69,17 +73,21 @@ void ezClock::restart() {
 
 void ezClock::menu() {
 	bool on_orig = _on;
+	bool posix_on_orig = _posix_on;
 	bool date_on_orig = _date_on;
 	bool clock12_orig = _clock12;
 	bool am_pm_orig = _am_pm;
 	String tz_orig = _timezone;
+	String tz_posix = _posix;
 	while(true) {
 		ezMenu clockmenu("Clock Settings");
 		clockmenu.txtSmall();
 		clockmenu.buttons("up#Back#select##down#");
 		clockmenu.addItem("on|Display clock\t" + (String)(_on ? "on" : "off"));
 		if (_on) {
+			clockmenu.addItem("tzfrom|Timezone from\t" + (String)(_posix_on ? "POSIX" : "Network"));
 			clockmenu.addItem("tz|Timezone\t" + _timezone);
+			clockmenu.addItem("posix|Timezone POSIX \t" + _posix);
 			clockmenu.addItem("date|Show date\t" + (String)(_date_on ? "on" : "off"));
 			clockmenu.addItem("1224|12/24 hour\t" + (String)(_clock12 ? "12" : "24"));
 			if (_clock12) {
@@ -92,24 +100,33 @@ void ezClock::menu() {
 				ezClock::restart();
 				break;
 			case 2:
+				_posix_on = !_posix_on;
+				ezClock::restart();
+				break;
+			case 3:
 				_timezone = ez.textInput("Enter timezone");
 				if (_timezone == "") _timezone = "GeoIP";
 				if (tz.setLocation(_timezone)) _timezone = tz.getOlsen();
 				break;
-			case 3:
-				_date_on = !_date_on;
-				ezClock::restart();
-				break;
 			case 4:
-				_clock12 = !_clock12;
+				_posix = ez.textInput("Enter POSIX");
+				if (_posix == "") _posix = TZ_POSIX;
 				ezClock::restart();
 				break;
 			case 5:
+				_date_on = !_date_on;
+				ezClock::restart();
+				break;
+			case 6:
+				_clock12 = !_clock12;
+				ezClock::restart();
+				break;
+			case 7:
 				_am_pm = !_am_pm;
 				ezClock::restart();
 				break;
 			case 0:
-				if (_am_pm != am_pm_orig || _clock12 != clock12_orig || _on != on_orig || _timezone != tz_orig || _date_on != date_on_orig) {
+				if (_am_pm != am_pm_orig || _clock12 != clock12_orig || _on != on_orig || _posix_on != posix_on_orig || _timezone != tz_orig || _posix != tz_posix || _date_on != date_on_orig) {
 					_writePrefs();
 				}
 				return;
@@ -121,10 +138,14 @@ uint32_t ezClock::loop() {
 	ezt::events();
 	if (_starting && timeStatus() != timeNotSet) {
 		_starting = false;
-		if (tz.setLocation(_timezone)) {
-			if (tz.getOlsen() != _timezone) {
-				_timezone = tz.getOlsen();
-				_writePrefs();
+		if(_posix_on) {
+			tz.setPosix(_posix);
+		} else {
+			if (tz.setLocation(_timezone)) {
+				if (tz.getOlsen() != _timezone) {
+					_timezone = tz.getOlsen();
+					_writePrefs();
+				}
 			}
 		}
 		ez.header.draw("clock");
@@ -147,6 +168,8 @@ void ezClock::_writePrefs() {
 	Preferences prefs;
 	prefs.begin("M5ez");
 	prefs.putBool("clock_on", _on);
+	prefs.putBool("posix_on", _posix_on);
+	prefs.putString("posix", _posix);
 	prefs.putString("timezone", _timezone);
 	prefs.putBool("date_on", _date_on);
 	prefs.putBool("clock12", _clock12);
