@@ -67,9 +67,32 @@
 	// theme.battery_50_fgcolor = TFT_YELLOW;
 	// theme.battery_75_fgcolor = TFT_GREENYELLOW;
 	// theme.battery_100_fgcolor = TFT_GREEN;
-
+	
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
+	theme.lcd_brightness_default = 0x80;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
 	theme.lcd_brightness_default = 0x8;
-	theme.btn_brightness_default = 0xE;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_M5Stick_C)
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_M5STACK_Core2)
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_ESP32_DEV)	//M35
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_D1_MINI32)	//K36
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+#elif defined (ARDUINO_Piranha)		//K46
+	theme.lcd_brightness_default = 0x8;
+	theme.btn_brightness_default = 0xA;
+#endif
 	
 	theme.add();
 }

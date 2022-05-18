@@ -101,7 +101,25 @@ void ezBacklight::menu() {
 					}
 				}
 				break;
-			#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K45
+			#if defined (ARDUINO_Piranha) //K46
+			case 3:
+				{
+					ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
+					while (true) {
+						String b = ez.buttons.poll();
+						if (b == "right" && _btn_brightness < 0xA) _btn_brightness++;
+						if (b == "left"  && _btn_brightness > 0x0) _btn_brightness--;
+						if (_btn_brightness > 0xA) _btn_brightness = 0;
+						kbdbl.value((float)(_btn_brightness) * 10);
+						setBtnBrightness(_btn_brightness);
+						if (b == "OK"){
+							blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)_btn_brightness * 10) + "%");
+							break;
+						}
+					}
+				}
+				break;
+			#elif defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) //M35 or K36
 			case 3:
 				{
 					ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
@@ -196,7 +214,7 @@ uint8_t ezBacklight::getInactivity(){
 	return _inactivity;
 }
 
-#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_Piranha) //TTGO T4 v1.3, K44
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_Piranha) //TTGO T4 v1.3, K46
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }
 #elif defined (ARDUINO_M5Stick_C)
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
