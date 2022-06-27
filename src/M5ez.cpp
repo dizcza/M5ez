@@ -801,12 +801,12 @@ void M5ez::yield() {
 	M5.update();
 	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
-		if (micros() > _events[n].when) {
+		if (esp_timer_get_time() > _events[n].when) {
 			M5ez::_in_event = true;		// prevent reentrancy
 			uint32_t r = (_events[n].function)();
 			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
-				_events[n].when = micros() + r - 1;
+				_events[n].when = esp_timer_get_time() + r - 1;
 			} else {
 				_events.erase(_events.begin() + n);
 				break;		// make sure we don't go beyond _events.size() after deletion
@@ -819,7 +819,7 @@ void M5ez::yield() {
 void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;
-	n.when = micros() + when - 1;
+	n.when = esp_timer_get_time() + when - 1;
 	_events.push_back(n);
 }
 
