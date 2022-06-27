@@ -205,7 +205,7 @@ uint8_t ezBattery::_getBatteryLevel() {
 	#elif defined (ARDUINO_ESP32_DEV)
 		return 50;	//placeholder for your device method
 	#elif defined (ARDUINO_Piranha)
-		return 50;	//placeholder for your device method
+		return m5.Bat.getBatteryLevel();
 	#else
 		return 50;	//placeholder for your device method
 	#endif
@@ -223,7 +223,7 @@ bool ezBattery::_isChargeFull() {
 	#elif defined (ARDUINO_ESP32_DEV)
 		return false;	//placeholder for your device method
 	#elif defined (ARDUINO_Piranha)
-		return false;	//placeholder for your device method
+		return m5.Bat.isChargeFull();
 	#else
 		return false;	//placeholder for your device method
 	#endif		
@@ -244,7 +244,7 @@ bool ezBattery::_isCharging() {
 	#elif defined (ARDUINO_ESP32_DEV)
 		return false;	//placeholder for your device method
 	#elif defined (ARDUINO_Piranha)
-		return false;	//placeholder for your device method
+		return m5.Bat.isCharging();
 	#else
 		return false;
 	#endif

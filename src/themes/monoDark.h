@@ -9,11 +9,11 @@
 	ezTheme theme;
 
 	theme.name = "monoDark";								// Change this when making theme
-	theme.displayName = "mono Dark";						// Change this when making theme
+	theme.displayName = "НІЧ";						// Change this when making theme
 	theme.background = TFT_BLACK;
 	theme.foreground = TFT_WHITE;
 	// theme.header_height = 23;
-	// theme.GFXfont* header_font = &FreeSansBold9pt7b;
+	// theme.GFXfont* header_font = &FreeMono9pt7b;
 	// theme.header_hmargin = 5;
 	// theme.header_tmargin = 3;
 	theme.header_bgcolor = theme.background;
@@ -23,7 +23,7 @@
 	// theme.GFXfont* clock_font = mono12x16;
 	// theme.longpress_time = 250;							//milliseconds
 	// theme.button_height = 19;								
-	// theme.GFXfont* button_font = &FreeSans9pt7b;			
+	// theme.GFXfont* button_font = &FreeMono9pt7b;			
 	// theme.button_tmargin = 1;								
 	// theme.button_hmargin = 5;								
 	// theme.button_gap = 3;									
@@ -35,13 +35,13 @@
 	// theme.input_top = 50;									// pixels below ez.canvas.top()
 	// theme.input_hmargin = 10;								// The distance between text box and edge of screen
 	// theme.input_vmargin = 10;								// Vertical margin _inside_ the text box
-	// theme.GFXfont* input_font = &FreeMonoBold12pt7b;		
-	// theme.GFXfont* input_keylock_font = &FreeSansBold9pt7b;
+	// theme.GFXfont* input_font = &FreeMono12pt7b;		
+	// theme.GFXfont* input_keylock_font = &FreeMono9pt7b;
 	theme.input_bgcolor = TFT_BLACK;						
 	// theme.input_fgcolor = TFT_GREEN;						
 	// theme.input_cursor_blink = 500;						// milliseconds
 	// theme.input_faces_btns = 18;							
-	// theme.GFXfont* tb_font = &FreeSans9pt7b;				
+	// theme.GFXfont* tb_font = &FreeMono9pt7b;				
 	theme.tb_color = theme.foreground;							
 	// theme.tb_hmargin = 5;
 	// theme.menu_lmargin = 20;								
@@ -50,11 +50,11 @@
 	theme.menu_item_color = theme.foreground;					
 	theme.menu_sel_bgcolor = theme.foreground;					
 	theme.menu_sel_fgcolor = theme.background;					
-	// theme.GFXfont* menu_big_font = &FreeSans12pt7b;			
-	// theme.GFXfont* menu_small_font = &FreeSans9pt7b;		
+	// theme.GFXfont* menu_big_font = &FreeMono12pt7b;			
+	// theme.GFXfont* menu_small_font = &FreeMono9pt7b;		
 	// theme.menu_item_hmargin = 10;							
 	// theme.menu_item_radius = 8;							
-	// theme.GFXfont* msg_font = &FreeSans12pt7b;				
+	// theme.GFXfont* msg_font = &FreeMono12pt7b;				
 	theme.msg_color = theme.foreground;						
 	// theme.msg_hmargin = 20;
 
@@ -73,7 +73,7 @@
 	// theme.battery_100_fgcolor = TFT_GREEN;
 
 #if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
-	theme.lcd_brightness_default = 0x80;
+	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x6;
 #elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
 	theme.lcd_brightness_default = 0x8;

@@ -39,10 +39,17 @@ bool ezTheme::select(String name) {
 void ezTheme::menu() {
 	uint8_t inactivity = ez.backlight.getInactivity();
 	String orig_name = ez.theme->name;
-	ezMenu thememenu("Theme chooser");
-	thememenu.txtSmall();
-	thememenu.buttons("up#Back#select##down#");
-	thememenu.addItem("timeout | Inactivity timeout\t"  + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+	#if defined (UKRAINIAN)
+		ezMenu thememenu("ТЕМИ");
+		thememenu.txtSmall();
+		thememenu.buttons("up # Back|ВИЙТИ # select|ОБРАТИ # # down # ");
+		thememenu.addItem("timeout | Тайм-аут бездії\t"  + (String)(inactivity == 0 ? "ВИМКН" : (String)(inactivity) + "сек"));
+	#else
+		ezMenu thememenu("Theme chooser");
+		thememenu.txtSmall();
+		thememenu.buttons("up#Back#select##down#");
+		thememenu.addItem("timeout | Inactivity timeout\t"  + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+	#endif
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
 		thememenu.addItem((String)(ez.themes[n].name) + "|" + ez.themes[n].displayName);
 	}
@@ -57,7 +64,11 @@ void ezTheme::menu() {
 				} else {
 					inactivity += 15;
 				}
+			#if defined (UKRAINIAN)
+				thememenu.setCaption("timeout", "Тайм-аут бездії\t" + (String)(inactivity == 0 ? "ВИМКН" : (String)(inactivity) + "сек"));
+			#else
 				thememenu.setCaption("timeout", "Inactivity timeout\t" + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+			#endif
 			}
 		}
 	}

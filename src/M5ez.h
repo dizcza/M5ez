@@ -6,6 +6,7 @@
 #include <vector>			// std::vector
 
 #define _M5STX_CORE_
+#define UKRAINIAN
 
 #if defined (_M5STX_CORE_)
 	#include <M5StX.h>
@@ -143,11 +144,11 @@ class ezTheme {
 		static void menu();
 
 		String name = "sansDefault";								// Change this when making theme
-		String displayName = "sans Default";						// To be translated to user language
+		String displayName = "Основний";							// To be translated to user language
 		uint16_t background = 0xEF7D;
 		uint16_t foreground = TFT_BLACK;
 		uint8_t header_height = 23;
-		const GFXfont* header_font = &FreeSansBold9pt7b;
+		const GFXfont* header_font = &FreeMono9pt7b;
 		uint8_t header_hmargin = 5;
 		uint8_t header_tmargin = 3;
 		uint16_t header_bgcolor = TFT_BLUE;
@@ -156,12 +157,12 @@ class ezTheme {
 		const GFXfont* print_font = mono6x8;					
 		uint16_t print_color = foreground;					
 		
-		const GFXfont* clock_font = &FreeMonoBold9pt7b;
+		const GFXfont* clock_font = &FreeMono9pt7b;
 
 		uint16_t longpress_time = 250;							//milliseconds
 
 		uint8_t button_height = 19;								
-		const GFXfont* button_font = &FreeSans9pt7b;			
+		const GFXfont* button_font = &FreeMono9pt7b;			
 		uint8_t button_tmargin = 1;								
 		uint8_t button_hmargin = 5;								
 		uint8_t button_gap = 3;									
@@ -174,14 +175,14 @@ class ezTheme {
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen
 		uint8_t input_vmargin = 10;								// Vertical margin _inside_ the text box
-		const GFXfont* input_font = &FreeMonoBold12pt7b;		
-		const GFXfont* input_keylock_font = &FreeSansBold9pt7b;
+		const GFXfont* input_font = &FreeMono12pt7b;		
+		const GFXfont* input_keylock_font = &FreeMono9pt7b;
 		uint16_t input_bgcolor = TFT_BLACK;						
 		uint16_t input_fgcolor = TFT_GREEN;						
 		uint16_t input_cursor_blink = 500;						// milliseconds
 		uint8_t input_faces_btns = 18;							
 
-		const GFXfont* tb_font = &FreeSans9pt7b;				
+		const GFXfont* tb_font = &FreeMono9pt7b;				
 		uint16_t tb_color = foreground;							
 		uint8_t tb_hmargin = 5;
 
@@ -191,12 +192,12 @@ class ezTheme {
 		uint16_t menu_item_color = foreground;					
 		uint16_t menu_sel_bgcolor = foreground;					
 		uint16_t menu_sel_fgcolor = background;					
-		const GFXfont* menu_big_font = &FreeSans12pt7b;			
-		const GFXfont* menu_small_font = &FreeSans9pt7b;		
+		const GFXfont* menu_big_font = &FreeMono12pt7b;			
+		const GFXfont* menu_small_font = &FreeMono9pt7b;		
 		uint8_t menu_item_hmargin = 10;							
 		uint8_t menu_item_radius = 8;
 
-		const GFXfont* msg_font = &FreeSans12pt7b;				
+		const GFXfont* msg_font = &FreeMono12pt7b;				
 		uint16_t msg_color = foreground;						
 		uint8_t msg_hmargin = 20;								
 

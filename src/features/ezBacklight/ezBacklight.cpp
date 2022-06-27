@@ -35,11 +35,11 @@ void ezBacklight::begin() {
 	prefs.begin("M5ez", true);	// read-only
 	_lcd_brightness = prefs.getUChar("lcd_brightness", ez.theme->lcd_brightness_default);
 	_btn_brightness = prefs.getUChar("btn_brightness", ez.theme->btn_brightness_default);
-	_inactivity = prefs.getUChar("inactivity", NEVER);
+	_inactivity = prefs.getUChar("inactivity", 15);
 	prefs.end();
-	ez.backlight.inactivity(USER_SET);
+	ez.backlight.inactivity(_inactivity);
 	setLcdBrightness(_lcd_brightness);
-	#if defined (ARDUINO_Piranha)//piranha_esp-32
+	#if defined (ARDUINO_Piranha)	//K46
 	    // Set up buttons back-light LED
 		pinMode(BTN_BL, OUTPUT);
 		digitalWrite(BTN_BL, HIGH);
@@ -54,17 +54,30 @@ void ezBacklight::menu() {
 	uint8_t start_lcd_brightness = _lcd_brightness;
 	uint8_t start_btn_brightness = _btn_brightness;
 	uint8_t start_inactivity = _inactivity;
-	ezMenu blmenu("Backlight settings");
+	#if defined (UKRAINIAN)
+		ezMenu blmenu("ЯСКР");
+	#else
+		ezMenu blmenu("Backlight settings");
+	#endif
 	blmenu.txtSmall();
 	#if defined (ARDUINO_M5Stick_C)
 		blmenu.buttons("##select##down#");
+		blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
+		blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+	#elif defined (UKRAINIAN)
+		blmenu.buttons("up # Back|ВИЙТИ # select|ОБРАТИ # # down # ");
+		blmenu.addItem("timeout | Таймаут бездії\t"  + (String)(_inactivity == NEVER ? "ВИМКН" : (String)(_inactivity) + "сек"));
+		blmenu.addItem("bltft | Яскравість екрану\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K46
+		blmenu.addItem("blkbd | Яскравість кнопок\t" + (String)((uint16_t)(15 - _btn_brightness) * 10) + "%");
+		#endif
 	#else
 		blmenu.buttons("up#Back#select##down#");
-	#endif
-	blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
-	blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
-	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K45
-		blmenu.addItem("blkbd | Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 25) + "%");
+		blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
+		blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_Piranha) //M35 or K36 or K46
+		blmenu.addItem("blkbd | Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 10) + "%");
+		#endif
 	#endif
 	while(true) {
 		switch (blmenu.runOnce()) {
@@ -75,17 +88,22 @@ void ezBacklight::menu() {
 					} else {
 						_inactivity += 15;
 					}
+				#if defined (UKRAINIAN)
+					blmenu.setCaption("timeout", "Тайм-аут бездії\t" + (String)(_inactivity == NEVER ? "ВИМКН" : (String)(_inactivity) + "сек"));
+				#else
 					blmenu.setCaption("timeout", "Inactivity timeout\t" + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
+				#endif
 				}
 				break;
 			case 2:	
 				{
 					#if defined (ARDUINO_M5Stick_C)
 						ezProgressBar lcdbl ("LCD", "Screen brightness", " ##left##right#");
+					#elif defined (UKRAINIAN)
+						ezProgressBar lcdbl ("LCD", "Яскравість екрану", "left#OK#right");
 					#else
 						ezProgressBar lcdbl ("LCD", "Screen brightness", "left#OK#right");
 					#endif
-					
 					while (true) {
 						String b = ez.buttons.poll();
 						if (b == "right" && _lcd_brightness < 0xA) _lcd_brightness++;
@@ -95,7 +113,13 @@ void ezBacklight::menu() {
 						lcdbl.value((float)_lcd_brightness * 10);
 						setLcdBrightness(_lcd_brightness);
 						if (b == "OK") {
-							blmenu.setCaption("bltft", "Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+							#if defined (ARDUINO_M5Stick_C)
+								blmenu.setCaption("bltft", "Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+							#elif defined (UKRAINIAN)
+								blmenu.setCaption("bltft", "Яскравість екрану\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+							#else
+								blmenu.setCaption("bltft", "Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
+							#endif
 							break;
 						}
 					}
@@ -104,7 +128,11 @@ void ezBacklight::menu() {
 			#if defined (ARDUINO_Piranha) //K46
 			case 3:
 				{
-					ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
+					#if defined (UKRAINIAN)
+						ezProgressBar kbdbl ("KBD", "Яскравість кнопок", "left#OK#right");
+					#else
+						ezProgressBar kbdbl ("KBD", "Buttons brightness", "left#OK#right");
+					#endif
 					while (true) {
 						String b = ez.buttons.poll();
 						if (b == "right" && _btn_brightness < 0xA) _btn_brightness++;
@@ -113,7 +141,12 @@ void ezBacklight::menu() {
 						kbdbl.value((float)(_btn_brightness) * 10);
 						setBtnBrightness(_btn_brightness);
 						if (b == "OK"){
-							blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)_btn_brightness * 10) + "%");
+							#if defined (UKRAINIAN)
+								blmenu.setCaption("blkbd", "Яскравість кнопок\t" + (String)((uint16_t)_btn_brightness * 10) + "%");
+							#else
+								blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)_btn_brightness * 10) + "%");
+							#endif
+							
 							break;
 						}
 					}
@@ -127,10 +160,10 @@ void ezBacklight::menu() {
 						String b = ez.buttons.poll();
 						if (b == "right" && _btn_brightness > 0xB) _btn_brightness--;
 						if (b == "left"  && _btn_brightness < 0xF) _btn_brightness++;
-						kbdbl.value((float)(0xF - _btn_brightness) * 25);
+						kbdbl.value((float)(0xF - _btn_brightness) * 10);
 						setBtnBrightness(_btn_brightness);
 						if (b == "OK"){
-							blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 25) + "%");
+							blmenu.setCaption("blkbd", "Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 10) + "%");
 							break;
 						}
 					}
