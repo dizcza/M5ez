@@ -92,7 +92,7 @@
 // #elif defined (ARDUINO_D1_MINI32)	//K36
 // 	theme.lcd_brightness_default = 0x8;
 // 	theme.btn_brightness_default = 0x0;
-// #elif defined (ARDUINO_Piranha)		//K46
+// #elif defined (ARDUINO_FROG_ESP32)		//K46
 // 	theme.lcd_brightness_default = 0x8;
 // 	theme.btn_brightness_default = 0x0;
 // #endif
