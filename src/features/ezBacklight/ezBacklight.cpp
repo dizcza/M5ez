@@ -11,9 +11,6 @@ uint8_t ezBacklight::_btn_brightness;
 uint8_t ezBacklight::_inactivity;
 uint32_t ezBacklight::_last_activity;
 bool ezBacklight::_backlight_off = false;
-uint32_t ezBacklight::_BtnA_LastChg = 0;
-uint32_t ezBacklight::_BtnB_LastChg = 0;
-uint32_t ezBacklight::_BtnC_LastChg = 0;
 
 
 bool ezBacklight::entry(uint8_t command, void* /* user */) {
@@ -209,22 +206,9 @@ uint32_t ezBacklight::loop() {
 			m5.Lcd.writecommand(TFT_DISPOFF);
 			m5.Lcd.writecommand(TFT_SLPIN);
 			ez.yield();
-			_BtnA_LastChg = M5.BtnA.lastChange();
-			_BtnB_LastChg = M5.BtnB.lastChange();
-			_BtnC_LastChg = M5.BtnC.lastChange();
 		}
 	}
-	if (_backlight_off) {
-		ez.yield();
-		if (_BtnA_LastChg != M5.BtnA.lastChange() || _BtnB_LastChg != M5.BtnB.lastChange() || _BtnC_LastChg != M5.BtnC.lastChange()) {
-			m5.Lcd.writecommand(TFT_SLPOUT);
-			m5.Lcd.writecommand(TFT_DISPON);
-			setLcdBrightness(_lcd_brightness);
-			setBtnBrightness(_btn_brightness);
-			activity();
-			_backlight_off = false;	//set it here to turn LDO on in setLcdBrightness()
-		}
-	}
+	ez.yield();
 	return 1000000;	//1s
 }
 	
@@ -246,6 +230,11 @@ void ezBacklight::defaults() {
 uint8_t ezBacklight::getInactivity(){
 	return _inactivity;
 }
+
+bool ezBacklight::getBacklightOff(){
+	return _backlight_off;
+}
+
 
 #if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_FROG_ESP32) //TTGO T4 v1.3, K46
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }

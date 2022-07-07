@@ -624,6 +624,13 @@ String ezButtons::poll() {
 
 	ez.yield();
 
+	if (ez.backlight.getBacklightOff()) {
+		if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()){
+			ez.backlight.wakeup();
+			_key_release_wait = true;
+		}
+	}
+	
 	if (!_key_release_wait) {
 		if (_btn_ab != "" && m5.BtnA.isPressed() && m5.BtnB.isPressed() ) {
 			keystr = ez.leftOf(_btn_ab, "|", true);

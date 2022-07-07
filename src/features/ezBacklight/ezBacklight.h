@@ -13,6 +13,7 @@ class ezBacklight {
 		static uint32_t loop();
 		static void defaults();
 		static uint8_t getInactivity();
+		static bool getBacklightOff();
 		static void setLcdBrightness(uint8_t brightness);
 		static void setBtnBrightness(uint8_t brightness);
 		static void wakeup();
