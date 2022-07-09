@@ -186,7 +186,7 @@ void ezBacklight::inactivity(uint8_t half_minutes) {
 	if (half_minutes == USER_SET) {
 		Preferences prefs;
 		prefs.begin("M5ez", true);
-		_inactivity = prefs.getUShort("inactivity", 0);
+		_inactivity = prefs.getUShort("inactivity", 15);
 		prefs.end();
 	} else {
 		_inactivity = half_minutes;
@@ -224,7 +224,7 @@ void ezBacklight::defaults() {
 	prefs.putUChar("btn_brightness", _btn_brightness);
 	prefs.end();	
 	_backlight_off = false;	
-	activity();	
+	_last_activity = millis();
 }
 
 uint8_t ezBacklight::getInactivity(){
@@ -280,5 +280,5 @@ void ezBacklight::wakeup() {
 		setLcdBrightness(_lcd_brightness);
 		_backlight_off = false;
 	}
-	activity();
+	_last_activity = millis();
 }
