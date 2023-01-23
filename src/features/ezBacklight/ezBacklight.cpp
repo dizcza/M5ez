@@ -36,7 +36,7 @@ void ezBacklight::begin() {
 	prefs.end();
 	ez.backlight.inactivity(_inactivity);
 	setLcdBrightness(_lcd_brightness);
-	#if defined (ARDUINO_FROG_ESP32)	//K46
+	#if defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46 || K46v2
 	    // Set up buttons back-light LED
 		pinMode(BTN_BL, OUTPUT);
 		digitalWrite(BTN_BL, HIGH);
@@ -65,14 +65,14 @@ void ezBacklight::menu() {
 		blmenu.buttons("up # Back|ВИЙТИ # select|ОБРАТИ # # down # ");
 		blmenu.addItem("timeout | Таймаут бездії\t"  + (String)(_inactivity == NEVER ? "ВИМКН" : (String)(_inactivity) + "сек"));
 		blmenu.addItem("bltft | Яскравість екрану\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
-		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_FROG_ESP32) //M35 or K36 or K46
+		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)//M35 or K36 or K46
 		blmenu.addItem("blkbd | Яскравість кнопок\t" + (String)((uint16_t)(15 - _btn_brightness) * 10) + "%");
 		#endif
 	#else
 		blmenu.buttons("up#Back#select##down#");
 		blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == NEVER ? "OFF" : (String)(_inactivity) + "s"));
 		blmenu.addItem("bltft | Screen brightness\t" + (String)((uint16_t)_lcd_brightness * 10) + "%");
-		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_FROG_ESP32) //M35 or K36 or K46
+		#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32) || defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)//M35 or K36 or K46
 		blmenu.addItem("blkbd | Buttons brightness\t" + (String)((uint16_t)(15 - _btn_brightness) * 10) + "%");
 		#endif
 	#endif
@@ -122,7 +122,7 @@ void ezBacklight::menu() {
 					}
 				}
 				break;
-			#if defined (ARDUINO_FROG_ESP32) //K46
+			#if defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46 || K46v2
 			case 3:
 				{
 					#if defined (UKRAINIAN)
@@ -261,7 +261,7 @@ bool ezBacklight::getBacklightOff(){
 #if defined (_M5STX_CORE_)
 	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
-	#elif defined (ARDUINO_FROG_ESP32)
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46 || K46v2
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { 
 			ledcWrite(BTN_PWM_CHANNEL, btnBrightness * 2.55); // brightness 0-255
 		}

@@ -54,6 +54,10 @@
 	#define TFT_W		320
 	#define TFT_H		240
 	#define BTN_BL		 26
+#elif defined (ARDUINO_WESP32)	//K46v2
+	#define TFT_W		320
+	#define TFT_H		240
+	#define BTN_BL		 19
 #endif
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
