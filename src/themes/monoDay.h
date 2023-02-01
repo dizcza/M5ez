@@ -78,8 +78,8 @@
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x0;
 // #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
-	theme.lcd_brightness_default = 0x8;
-	theme.btn_brightness_default = 0x0;
+	// theme.lcd_brightness_default = 0x8;
+	// theme.btn_brightness_default = 0x0;
 #elif defined (ARDUINO_M5STACK_Core2)
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x0;
