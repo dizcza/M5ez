@@ -3,7 +3,7 @@
 #include <WiFi.h>
 
 // Comment out the line below to disable WPS.
-#define M5EZ_WPS
+//#define M5EZ_WPS
 
 enum WifiState_t {
 	EZWIFI_NOT_INIT,
