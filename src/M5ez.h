@@ -220,8 +220,31 @@ class ezTheme {
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
 
+	#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
 		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xE;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_M5Stick_C)
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
+	// 	uint8_t lcd_brightness_default = 0x8;
+	// 	uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_M5STACK_Core2)
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_ESP32_DEV)	//M35
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_D1_MINI32)	//K36
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46 || K46v2
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0x2;
+	#endif
 	//						
 };
 
