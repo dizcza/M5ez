@@ -12,7 +12,6 @@
     "url": "https://github.com/M5ez/M5ez"
   },
   "dependencies": [
-    { "name": "M5Stack" },
     { "name": "ezTime" }
   ],
   "version": "2.3.0",
