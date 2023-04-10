@@ -3,8 +3,6 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
-#include <vector>			// std::vector
-
 #define _M5STX_CORE_
 #define UKRAINIAN
 
