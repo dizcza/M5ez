@@ -444,10 +444,8 @@ class ezMenu {
 		int16_t _per_item_h, _vmargin;
 		int16_t _items_per_screen;
 		uint16_t _old_background;
-		void _drawImage(MenuItem_t &item);
 		void _drawCaption();
 		const GFXfont* _font;
-		int16_t _runImagesOnce();
 		int16_t _runTextOnce();
 		void _fixOffset();
 		void _drawItems();

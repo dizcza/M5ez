@@ -1537,13 +1537,6 @@ int16_t ezMenu::runOnce() {
 	if(_items.size() == 0) return 0;
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
-	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].fs != NULL) {
-			result = _runImagesOnce();
-			if(0 == result) M5ez::_currentMenu = nullptr;
-			return result;
-		}
-	}
 	result = _runTextOnce();
 	if(0 == result) M5ez::_currentMenu = nullptr;
 	return result;
@@ -1683,74 +1676,6 @@ void ezMenu::imgCaptionMargins(int16_t hmargin, int16_t vmargin) {
 void ezMenu::imgCaptionMargins(int16_t margin) {
 	_img_caption_hmargin = margin;
 	_img_caption_vmargin = margin;
-}
-
-int16_t ezMenu::_runImagesOnce() {
-	if (_buttons == "") _buttons = "left # select # right";
-	if (_img_background == NO_COLOR) _img_background = ez.theme->background;
-	ez.screen.clear(_img_background);
-	String tmp_buttons = _buttons;
-	tmp_buttons.replace("left", "");
-	tmp_buttons.replace("right", "");
-	ez.buttons.show(tmp_buttons);
-	ez.screen.clear(_img_background);
-	if (_header != "") ez.header.show(_header);
-	_drawImage(_items[_selected]);
-	_drawCaption();
-	while (true) {
-		tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("left", "");
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", "");
-		ez.buttons.show(tmp_buttons);
-		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
-		String pressed;
-		while (true) {
-			pressed = ez.buttons.poll();
-			if (pressed != "") break;
-		}
-		if (pressed == "left") {
-			_selected--;
-			ez.canvas.clear();
-			_drawImage(_items[_selected]);
-			_drawCaption();
-		} else if (pressed == "right") {
-			_selected++;
-			ez.canvas.clear();
-			_drawImage(_items[_selected]);
-			_drawCaption();
-		} else if ( (ez.isBackExitOrDone(name) && !_items[_selected].advancedFunction) || ez.isBackExitOrDone(pressed) ) {
-			_pick_button = pressed;
-			_selected = -1;
-			ez.screen.clear();
-			return 0;
-		} else {
-			// Some other key must have been pressed. We're done here!
-			ez.screen.clear();
-			_pick_button = pressed;
-			if (_items[_selected].simpleFunction != NULL) {
-				(_items[_selected].simpleFunction)();
-				ez.screen.clear();
-			}
-			if (_items[_selected].advancedFunction != NULL) {
-				if (!(_items[_selected].advancedFunction)(this)) {
-					ez.screen.clear();
-					return 0;
-				} else {
-					ez.screen.clear();
-				}
-			}
-			return _selected + 1; 	// We return items starting at one, but work starting at zero internally
-		}
-	}
-}
-
-void ezMenu::_drawImage(MenuItem_t &item) {
-	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
-	}
-	if (item.fs) {
-		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
-	}
 }
 
 void ezMenu::_drawCaption() {
