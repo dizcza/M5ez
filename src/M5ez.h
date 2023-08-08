@@ -3,6 +3,8 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
+#include <vector>			// std::vector
+
 #define _M5STX_CORE_
 #define UKRAINIAN
 
@@ -48,14 +50,14 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	#define TFT_W		320
 	#define TFT_H		240
-#elif defined (ARDUINO_FROG_ESP32)	//K46
-	#define TFT_W		320
-	#define TFT_H		240
-	#define BTN_BL		 26
-#elif defined (ARDUINO_WESP32)	//K46v2
+#elif defined (ARDUINO_FROG_ESP32)	//K46v4
 	#define TFT_W		320
 	#define TFT_H		240
 	#define BTN_BL		 19
+#elif defined (ARDUINO_WESP32)	//K46v1
+	#define TFT_W		320
+	#define TFT_H		240
+	#define BTN_BL		 26
 #endif
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
@@ -241,7 +243,7 @@ class ezTheme {
 	#elif defined (ARDUINO_D1_MINI32)	//K36
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46 || K46v2
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0x2;
 	#endif
