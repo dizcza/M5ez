@@ -3,6 +3,8 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
+#include <vector>			// std::vector
+
 #define _M5STX_CORE_
 #define UKRAINIAN
 
@@ -48,14 +50,14 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	#define TFT_W		320
 	#define TFT_H		240
-#elif defined (ARDUINO_FROG_ESP32)	//K46
-	#define TFT_W		320
-	#define TFT_H		240
-	#define BTN_BL		 26
-#elif defined (ARDUINO_WESP32)	//K46v2
+#elif defined (ARDUINO_FROG_ESP32)	//K46v4
 	#define TFT_W		320
 	#define TFT_H		240
 	#define BTN_BL		 19
+#elif defined (ARDUINO_WESP32)	//K46v1
+	#define TFT_W		320
+	#define TFT_H		240
+	#define BTN_BL		 26
 #endif
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
@@ -220,8 +222,31 @@ class ezTheme {
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
 
+	#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
 		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xE;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_M5Stick_C)
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
+	// 	uint8_t lcd_brightness_default = 0x8;
+	// 	uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_M5STACK_Core2)
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_ESP32_DEV)	//M35
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_D1_MINI32)	//K36
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0xA;
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+		uint8_t lcd_brightness_default = 0x8;
+		uint8_t btn_brightness_default = 0x2;
+	#endif
 	//						
 };
 
