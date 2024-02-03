@@ -50,10 +50,14 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	#define TFT_W		320
 	#define TFT_H		240
-#elif defined (ARDUINO_FROG_ESP32)	//K46v4
+#elif defined (ARDUINO_FROG_ESP32)  //K46v4
 	#define TFT_W		320
 	#define TFT_H		240
 	#define BTN_BL		 19
+#elif defined (ARDUINO_TTGO_T1)
+	#define TFT_W		320
+	#define TFT_H		240
+	#undef BTN_BL
 #elif defined (ARDUINO_WESP32)	//K46v1
 	#define TFT_W		320
 	#define TFT_H		240
@@ -243,7 +247,7 @@ class ezTheme {
 	#elif defined (ARDUINO_D1_MINI32)	//K36
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0x2;
 	#endif

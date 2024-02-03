@@ -92,7 +92,7 @@
 #elif defined (ARDUINO_D1_MINI32)	//K36
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x6;
-#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x6;
 #endif

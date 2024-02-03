@@ -130,7 +130,7 @@ bool ezBattery::_isChargeControl() {
 		return false;	// charging is automatic
 	#elif defined (ARDUINO_ESP32_DEV)
 		return true;
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		return false;	// charging is automatic
 	#else
 		return false;	//placeholder for your device method
@@ -163,7 +163,7 @@ void ezBattery::_setCharge(bool enable) {
 		;	// can be done using bit 7 of REG 0x33
 	#elif defined (ARDUINO_ESP32_DEV)
 		;	//placeholder for your device method
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		;
 	#else
 		;	//placeholder for your device method
@@ -181,7 +181,7 @@ void ezBattery::_setLowPowerShutdownTime() {
 		;	//placeholder for your device method
 	#elif defined (ARDUINO_ESP32_DEV)
 		;	//placeholder for your device method
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		;
 	#else
 		;	//placeholder for your device method
@@ -204,7 +204,7 @@ uint8_t ezBattery::_getBatteryLevel() {
 		return 0;
 	#elif defined (ARDUINO_ESP32_DEV)
 		return 50;	//placeholder for your device method
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		return m5.Bat.getBatteryLevel();
 	#else
 		return 50;	//placeholder for your device method
@@ -222,7 +222,7 @@ bool ezBattery::_isChargeFull() {
 		return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
 	#elif defined (ARDUINO_ESP32_DEV)
 		return false;	//placeholder for your device method
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		return m5.Bat.isChargeFull();
 	#else
 		return false;	//placeholder for your device method
@@ -243,7 +243,7 @@ bool ezBattery::_isCharging() {
 		// }			
 	#elif defined (ARDUINO_ESP32_DEV)
 		return false;	//placeholder for your device method
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		return m5.Bat.isCharging();
 	#else
 		return false;

@@ -235,7 +235,7 @@ bool ezBacklight::getBacklightOff(){
 }
 
 
-#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) //TTGO T4 v1.3, K46v4, K46v1
+#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) || defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1) //TTGO T4 v1.3, K46v4, K46v1
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }
 #elif defined (ARDUINO_M5Stick_C)
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
@@ -260,7 +260,7 @@ bool ezBacklight::getBacklightOff(){
 #if defined (_M5STX_CORE_)
 	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { 
 			ledcWrite(BTN_PWM_CHANNEL, btnBrightness * 2.55); // brightness 0-255
 		}
