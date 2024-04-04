@@ -265,9 +265,13 @@ bool ezBacklight::getBacklightOff(){
 #if defined (_M5STX_CORE_)
 	#if defined (ARDUINO_ESP32_DEV) || defined (ARDUINO_D1_MINI32)	//M35, K36 under M5StX only
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { m5.Ioe.setBtnBrightness(btnBrightness, HIGH); }
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
+	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32)	//K46v4 || K46v1
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) { 
 			ledcWrite(BTN_PWM_CHANNEL, btnBrightness * 2.55); // brightness 0-255
+		}
+	#elif defined (ARDUINO_TTGO_T1)
+		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {
+			M5.MCPMan.enableTFT_BL(btnBrightness > 0);
 		}
 	#else
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
