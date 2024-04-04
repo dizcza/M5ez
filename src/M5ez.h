@@ -3,6 +3,9 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
+// Turn this off if you don't have a battery attached
+#define M5EZ_BATTERY
+
 #include <vector>			// std::vector
 
 #define _M5STX_CORE_
@@ -124,6 +127,11 @@
 
 
 
+#define IMAGE_JPG  1
+#define IMAGE_BMP  2
+#define IMAGE_PNG  3
+#define IMAGE_XBMP 4
+
 struct line_t {
 	int16_t position;
 	String line;
@@ -178,7 +186,9 @@ class ezTheme {
 		uint16_t button_bgcolor_b = TFT_BLUE;					
 		uint16_t button_bgcolor_t = TFT_PURPLE;					
 		uint16_t button_fgcolor = TFT_WHITE;					
-		uint16_t button_longcolor = TFT_CYAN;					
+		uint16_t button_longcolor = TFT_CYAN;
+		char button_press_char = '$';                   		// First char of the button text, which indicates button press			
+		uint16_t button_press_bgcolor = TFT_DARKGREY;           // Backgroung color after button press
 
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen
@@ -204,6 +214,8 @@ class ezTheme {
 		const GFXfont* menu_small_font = &FreeMono9pt7b;		
 		uint8_t menu_item_hmargin = 10;							
 		uint8_t menu_item_radius = 8;
+		uint16_t menu_checked_fgcolor = TFT_GREEN;
+		uint16_t menu_checked_bgcolor = TFT_DARKGREEN;
 
 		const GFXfont* msg_font = &FreeMono12pt7b;				
 		uint16_t msg_color = foreground;						
@@ -412,13 +424,21 @@ class ezButtons {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define CHECK_TPYE_NONE  1
+#define CHECK_TYPE_RADIO 2
+#define CHECK_TYPE_MULTI 3
+
 class ezMenu {
 	public:
-		ezMenu(String hdr = "");
+		ezMenu(String hdr = "", bool circularImageMenu = false);		
 		~ezMenu();
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addXBmpImageItem(const char *image, String nameAndCaption, int16_t width, int16_t height, uint16_t xbmpColor = TFT_WHITE, uint16_t xbmpBgColor = TFT_BLACK, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addBmpImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addPngImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);		
 		bool deleteItem(int16_t index);
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
@@ -431,8 +451,10 @@ class ezMenu {
 		void rightOnLast(String nameAndCaption);
 		String getTitle();
 		int16_t getItemNum(String name);
+		int16_t getItemSize();
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
+		void pickItem(int16_t index);
 		void run();
 		int16_t runOnce();
 		void txtBig();
@@ -441,10 +463,19 @@ class ezMenu {
 		void imgBackground(uint16_t color);
 		void imgFromTop(int16_t offset);
 		void imgCaptionFont(const GFXfont* font);
+		void imgFromLeft(int16_t offset);
+		void imgCaptionFont(const GFXfont* font);	
 		void imgCaptionLocation(uint8_t datum);
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
 		void imgCaptionMargins(int16_t margin);
+		void setCheckButtonName(String name);
+		void setCheckType(int8_t checkType);
+		bool check(String name);
+		void check(int16_t index);
+		int16_t getCheckedItemIndex();
+		String getCheckedItemName();
+		bool isChecked(int16_t index);	
 
 		static bool sort_asc_name_cs (const char* s1, const char* s2);
 		static bool sort_asc_name_ci (const char* s1, const char* s2);
@@ -456,18 +487,29 @@ class ezMenu {
 		static bool sort_dsc_caption_ci (const char* s1, const char* s2);
 
 	private:
+		void _init(String hdr, bool circular);
 		struct MenuItem_t {
 			String nameAndCaption;
-			const char *image;
+			bool checked = false;
+			const char *jpgImageData;
+			const unsigned short *bmpImageData;
+			const char *xbmpImageData;
 			fs::FS *fs;
 			String path;
+			uint8_t imageType = IMAGE_JPG;
+			int16_t imageWidth = 0; 
+			int16_t imageHeight = 0;
+			uint16_t xbmpColor = TFT_WHITE; 
+			uint16_t xbmpBgColor = TFT_BLACK;
 			void (*simpleFunction)();
 			bool (*advancedFunction)(ezMenu* callingMenu);
 			void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h);
 		};
 		std::vector<MenuItem_t> _items;
 		int16_t _selected, _offset;
-		bool _redraw;
+		int8_t _checkType = CHECK_TPYE_NONE;
+		String _checkName = "check";
+		bool _redraw, _circularImageMenu;
 		String _header, _buttons, _pick_button;
 		String _up_on_first, _down_on_last;
 		int16_t _per_item_h, _vmargin;
@@ -480,9 +522,10 @@ class ezMenu {
 		int16_t _runTextOnce();
 		void _fixOffset();
 		void _drawItems();
-		void _drawItem(int16_t n, String text, bool selected);
+		void _drawItem(int16_t n, String text, bool selected, bool checked);
 		void _Arrows();
 		int16_t _img_from_top;
+		int16_t _img_from_left;
 		uint8_t _img_caption_location;
 		uint16_t _img_caption_color;
 		uint16_t _img_background;
@@ -530,6 +573,228 @@ class ezSettings {
 		static ezMenu menuObj;
 	//
 };
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   B A C K L I G H T
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_BACKLIGHT
+	#define NEVER		0
+	#define USER_SET	255
+	class ezBacklight {
+		public:
+			static void begin();
+			static void menu();
+			static void inactivity(uint8_t half_minutes);
+			static void activity();
+			static uint16_t loop();
+		private:
+			static uint8_t _brightness;
+			static uint8_t _inactivity;
+			static uint32_t _last_activity;
+			static bool _backlight_off;
+		//
+	};
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   C L O C K
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_CLOCK
+	class ezClock {
+		public:
+			static Timezone tz;
+			static void begin();
+			static void restart();
+			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
+			static uint16_t loop();
+			static void clear();
+			static void draw(uint16_t x, uint16_t w);
+			static bool waitForSync(const uint16_t timeout = 0);
+			static bool isClockFormat12();
+			static bool isAmPmIndicatorDisplayed();
+		private:
+			static void _writePrefs();
+			static bool _on;
+			static String _timezone;
+			static bool _clock12;
+			static bool _am_pm;
+			static String _datetime;
+			static bool _starting;
+			static String _menuHeader;
+			static String _menuButtons;
+		//
+	};
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   F A C E S
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_FACES
+	class ezFACES {
+		public:
+			static void begin();
+			static void menu();
+			static String poll();
+			static bool on();
+		private:
+			static bool _on;
+		//
+	};
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   W I F I
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_WIFI
+
+	enum WifiState_t {
+		EZWIFI_NOT_INIT,
+		EZWIFI_WAITING,
+		EZWIFI_IDLE,
+		EZWIFI_SCANNING,
+		EZWIFI_CONNECTING,
+		EZWIFI_AUTOCONNECT_DISABLED
+	};
+
+	struct WifiNetwork_t {
+		String SSID;
+		String key;
+	};
+
+	class ezWifi {
+		public:
+			static std::vector<WifiNetwork_t> networks;
+			static bool autoConnect;
+			static void begin();
+			static void add(String ssid, String key);
+			static bool remove(int8_t index);
+			static bool remove(String ssid);
+			static int8_t indexForSSID(String ssid);
+			static void readFlash();
+			static void writeFlash();
+			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
+			static uint16_t loop();
+			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
+			static String updateError();
+		private:
+			static WifiState_t _state;
+			static uint8_t _current_from_scan;
+			static uint32_t _wait_until, _widget_time;
+			static void _drawWidget(uint16_t x, uint16_t w);
+			static bool _onOff(ezMenu* callingMenu);
+			static void _manageAutoconnects();
+			static bool _autoconnectSelected(ezMenu* callingMenu);
+			static void _askAdd();
+			static bool _connection(ezMenu* callingMenu);
+			static void _update_progress(int done, int total);
+			static String _update_err2str(uint8_t _error);
+			static ezProgressBar* _update_progressbar;
+			static String _update_error;
+			static String _menuHeader;
+			static String _menuButtons;
+			#ifdef M5EZ_WPS
+				static void _WPShelper(WiFiEvent_t event, system_event_info_t info);
+				static WiFiEvent_t _WPS_event;
+				static String _WPS_pin;
+				static bool _WPS_new_event;
+			#endif
+		//
+	};
+
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   B L E
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_BLE
+
+	class ezBLE {
+		public:
+			static void begin();
+			static void readFlash();
+			static void writeFlash();
+			static void menu();
+			static void disconnect();
+			static class BLEClient* getClient(uint16_t index);
+			static uint16_t getClientCount();
+		private:
+			static const std::vector<std::pair<uint16_t, String>> _gattUuids;
+			static bool _on;
+			static bool _initialized;
+			static std::vector<class BLEClient*> _clients;
+			static bool _scan(ezMenu* callingMenu);
+			static void _connect(class BLEAdvertisedDevice& device);
+			static bool _listClients(ezMenu* callingMenu);
+			static bool _showClient(class BLEClient* client);
+			static void _cleanup();
+			static void _refresh();
+			friend class M5ezClientCallback;
+	};
+
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   B A T T E R Y
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_BATTERY
+
+	class ezBattery {
+		public:
+			static void begin();
+			static void readFlash();
+			static void writeFlash();
+			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
+			static void enableBatteryLevelIndicator();
+			static void disableBatteryLevelIndicator();
+			static uint16_t loop();
+			static uint8_t getTransformedBatteryLevel();
+			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
+		private:
+			static bool _on;
+			static String _menuHeader;
+			static String _menuButtons;
+			static void _refresh();
+			static void _drawWidget(uint16_t x, uint16_t w);
+			static uint8_t _numChargingBars;
+	};
+
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
