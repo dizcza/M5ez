@@ -239,8 +239,7 @@ bool ezBacklight::getBacklightOff(){
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) { m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55)); }
 #elif defined (ARDUINO_TTGO_T1)
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
-		// either ON/OFF
-		m5.MCPMan.enableTFT_BL(lcdBrightness > 0);
+		m5.Lcd.setBrightness((uint8_t)(lcdBrightness * 2.55));
 	}
 #elif defined (ARDUINO_M5Stick_C)
 	void ezBacklight::setLcdBrightness(uint8_t lcdBrightness) {
@@ -271,7 +270,6 @@ bool ezBacklight::getBacklightOff(){
 		}
 	#elif defined (ARDUINO_TTGO_T1)
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {
-			M5.MCPMan.enableTFT_BL(btnBrightness > 0);
 		}
 	#else
 		void ezBacklight::setBtnBrightness(uint8_t btnBrightness) {}
