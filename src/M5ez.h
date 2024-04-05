@@ -162,7 +162,7 @@ class ezTheme {
 		uint16_t header_bgcolor = TFT_BLUE;
 		uint16_t header_fgcolor = TFT_WHITE;					
 
-		const GFXfont* print_font = mono6x8;					
+		const GFXfont* print_font = &FreeMono9pt7b;					
 		uint16_t print_color = foreground;					
 		
 		const GFXfont* clock_font = &FreeMono9pt7b;
