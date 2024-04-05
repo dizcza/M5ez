@@ -67,7 +67,7 @@ void ezClock::restart() {
 		}
 		ez.setFont(ez.theme->clock_font);
 		uint8_t width = length * m5.lcd.textWidth("5") + ez.theme->header_hmargin * 2;
-		ez.header.insert(ez.header.position("wifi"), "clock", width, ezClock::draw);
+		ez.header.insert(ez.header.position("battery"), "clock", width, ezClock::draw);
 	}
 }
 

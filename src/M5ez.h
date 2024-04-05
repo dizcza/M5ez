@@ -95,10 +95,10 @@
 #define FEATURE_MSG_CLOCK_EVENTS	11	// Defined in features/ezClock
 // FEATURE_... 6 - 99 reserved. 100+ for specific feature use
 
-#define FEATURE_INSTALL_EZWIFI			// Enable built-in feature ezWifi
+// #define FEATURE_INSTALL_EZWIFI			// Enable built-in feature ezWifi
 //#define FEATURE_INSTALL_EZFACES			// Enable built-in feature ezFACES
 #define FEATURE_INSTALL_EZBACKLIGHT		// Enable built-in feature ezBacklight
-#define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
+// #define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
 #define FEATURE_INSTALL_EZBATTERY		// Enable built-in feature ezBattery
 //#define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
 
