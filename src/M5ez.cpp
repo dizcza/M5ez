@@ -53,10 +53,8 @@ void ezTheme::menu() {
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
 		thememenu.addItem((String)(ez.themes[n].name) + "|" + ez.themes[n].displayName);
 	}
-	bool changed = false;
 	while(thememenu.runOnce()) {
 		if (thememenu.pick()) {
-			changed = true;
 			if(thememenu.pickName() != "timeout" ){
 				ez.theme->select(thememenu.pickName());
 				ez.backlight.defaults();
@@ -74,15 +72,16 @@ void ezTheme::menu() {
 			}
 		}
 	}
-	if (changed) {
+	if (ez.theme->name != orig_name) {
 		Preferences prefs;
 		prefs.begin("M5ez");
 		prefs.putString("theme", ez.theme->name);
-		prefs.putUChar("inactivity", inactivity);
 		prefs.end();
 		ez.backlight.defaults();
 	}
-	ez.backlight.inactivity(inactivity);
+	if (inactivity != ez.backlight.getInactivity()){
+		ez.backlight.inactivity(inactivity);
+	}
 	return;	
 }
 
