@@ -445,6 +445,7 @@ class ezMenu {
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
 		void imgCaptionMargins(int16_t margin);
+		int count();
 
 		static bool sort_asc_name_cs (const char* s1, const char* s2);
 		static bool sort_asc_name_ci (const char* s1, const char* s2);

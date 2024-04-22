@@ -1685,6 +1685,12 @@ void ezMenu::imgCaptionMargins(int16_t margin) {
 	_img_caption_vmargin = margin;
 }
 
+
+int ezMenu::count() {
+	return _items.size();
+}
+
+
 int16_t ezMenu::_runImagesOnce() {
 	if (_buttons == "") _buttons = "left # select # right";
 	if (_img_background == NO_COLOR) _img_background = ez.theme->background;
