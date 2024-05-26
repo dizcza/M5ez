@@ -581,7 +581,8 @@ class M5ez {
 		static String textInput(String header = "", String defaultText = "");
 
 		//ez.textBox
-		static String textBox(String header = "", String text = "", bool readonly = false, String buttons = "up#Done#down", const GFXfont* font = NULL, uint16_t color = NO_COLOR);
+		static void textBox(String header = "", String text = "", String buttons = "up#Done#down", const GFXfont* font = NULL, uint16_t color = NO_COLOR);
+		static void textBox(String header = "", const std::vector<String>& lines = {}, String buttons = "up#Done#down", const GFXfont* font = NULL, uint16_t color = NO_COLOR);
 
 		// Generic String object helper functions
 		static String rightOf(String input, String separator, bool trim = true);
@@ -642,6 +643,7 @@ class M5ez {
 
 		// ez.textBox
 		static void _wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
+		static void _wrapLines(String text, uint16_t width, std::vector<String>& lines);
 		static void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
 	//
 };

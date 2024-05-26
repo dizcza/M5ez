@@ -1021,18 +1021,16 @@ void M5ez::_textCursor(bool state) {
 	_text_cursor_millis = millis();
 }
 
-String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+void M5ez::textBox(String header /*= ""*/, String text /*= "" */, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+	std::vector<String> lines;
+	_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
+	textBox(header, lines, buttons, font, color);
+}
+
+void M5ez::textBox(String header, const std::vector<String>& lines, String buttons, const GFXfont* font, uint16_t color) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
-	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
-		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL);	// flush key buffer in FACES
-	}
-	else {
-		readonly = true;
-	}
-	std::vector<line_t> lines;
 	ez.screen.clear();
-	uint16_t cursor_pos = text.length();
 	bool cursor_state = false;
 	long cursor_time = 0;
 	if (header != "") ez.header.show(header);
@@ -1043,18 +1041,13 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	ez.buttons.show(tmp_buttons); 	//we need to draw the buttons here to make sure ez.canvas.height() is correct
 	uint8_t lines_per_screen = (ez.canvas.height()) / per_line_h;
 	uint8_t remainder = (ez.canvas.height()) % per_line_h;
-	_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
 	uint16_t offset = 0;
 	bool redraw = true;
 	ez.setFont(font);
 	uint8_t cursor_width = m5.lcd.textWidth("|");
 	uint8_t cursor_height = per_line_h * 0.8;
-	int16_t cursor_x = 0;
-	int16_t cursor_y = 0;
 	while (true) {
 		if (redraw) {
-			if (!readonly && cursor_x && cursor_y) m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, ez.screen.background());		//Remove current cursor
-			cursor_x = cursor_y = 0;
 			tmp_buttons = buttons;
 			if (offset >= lines.size() - lines_per_screen) {
 				tmp_buttons.replace("down", "");
@@ -1068,54 +1061,23 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			m5.lcd.setTextColor(color, ez.screen.background());
 			m5.lcd.setTextDatum(TL_DATUM);
 			uint16_t x, y;
-			int16_t sol, eol;
 			String this_line;
 			if (lines.size() > 0) {
 				for (uint16_t n = offset; n < offset + lines_per_screen; n++) {
-					if (n < lines.size() - 1) {
-						this_line = lines[n].line;
-						sol = lines[n].position;
-						eol = lines[n + 1].position - 1;
-					} else if (n == lines.size() - 1) {
-						this_line = lines[n].line;
-						sol = lines[n].position;
-						eol = text.length();
+					if (n <= lines.size() - 1) {
+						this_line = lines[n];
 					} else {
 						this_line = "";
-						sol = -1;
-						eol = text.length();
 					}
 					y = ez.canvas.top() + remainder * 0.7 + (n - offset) * per_line_h;
 					x = ez.theme->tb_hmargin;
-					if (!readonly && sol != -1 && cursor_pos >= sol && cursor_pos <= eol && n < lines.size()) { 		// if cursor is on current line
-						x += m5.lcd.drawString(this_line.substring(0, cursor_pos - sol), x, y);
-						cursor_x = x;
-						cursor_y = y;
-						x += cursor_width;
-						x += m5.lcd.drawString(this_line.substring(cursor_pos - sol), x, y);
-					} else {
-						x += m5.lcd.drawString(this_line, x, y);
-					}
+					x += m5.lcd.drawString(this_line, x, y);
 					m5.lcd.fillRect(x, y, ez.canvas.width() - x, per_line_h, ez.screen.background());
 				}
 				redraw = false;
 			}
 		}
-		if (!readonly && cursor_x && cursor_y && millis() - cursor_time > ez.theme->input_cursor_blink) {
-			cursor_time = millis();
-			if (cursor_state) {
-				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, ez.screen.background());
-				cursor_state = false;
-			} else {
-				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, color);
-				cursor_state = true;
-			}
-		}
 		String key = ez.buttons.poll();
-
-		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
-			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
-		}
 		if (key == "down") {
 			offset += lines_per_screen;
 			ez.canvas.clear();
@@ -1130,65 +1092,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 		}
 		if (key == "Done") {
 			ez.screen.clear();
-			return text;
-		}
-		if (key == (String)char(8)) {		// Delete
-			if (cursor_pos > 0) {
-				text = text.substring(0, cursor_pos - 1) + text.substring(cursor_pos);
-				cursor_pos--;
-				_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
-				redraw = true;
-			}
-			key = "";
-		}
-		if (key == (String)char(191)) {		// left arrow on FACES keyboard
-			if (cursor_pos > 0) {
-				cursor_pos--;
-				redraw = true;
-			}
-			key = "";
-		}
-		if (key == (String)char(193)) {		// right arrow on FACES keyboard
-			if (cursor_pos < text.length()) {
-				cursor_pos++;
-				redraw = true;
-			}
-			key = "";
-		}
-		if (key == (String)char(183) || key == (String)char(192)) {		// up or down arrow on FACES keyboard
-			uint16_t cursor_line = lines.size() - 1;
-			for (uint16_t n = 0; n < lines.size(); n++) {
-				if (cursor_pos < lines[n].position) {
-					cursor_line = n - 1;
-					break;
-				}
-			}
-			float relative_pos = (float)(cursor_pos - lines[cursor_line].position) / lines[cursor_line].line.length();
-			if (key == (String)char(183)) {		//up
-				if (cursor_line >= 1) {
-					cursor_pos = lines[cursor_line - 1].position + lines[cursor_line - 1].line.length() * relative_pos;
-					redraw = true;
-				}
-			} else {	//down
-				if (cursor_line < lines.size() - 1) {
-					cursor_pos = lines[cursor_line + 1].position + lines[cursor_line + 1].line.length() * relative_pos;
-					redraw = true;
-				}
-			}
-			key = "";
-		}
-
-		if (!readonly) {
-			if (key >= " " && key <= "~") {
-				if (cursor_pos == text.length()) {
-					text = text + key;
-				} else {
-					text = text.substring(0, cursor_pos) + key + text.substring(cursor_pos);
-				}
-				cursor_pos++;
-				_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
-				redraw = true;
-			}
+			break;
 		}
 	}
 }
@@ -1255,6 +1159,62 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 
 	}
 }
+
+
+void M5ez::_wrapLines(String text, uint16_t width, std::vector<String>& lines) {
+	lines.clear();
+	int16_t offset = 0;
+	int16_t last_space = 0;
+	int16_t cur_space = 0;
+	int16_t newline = 0;
+	bool all_done = false;
+	const char newLineChar = '\n';
+
+	while (!all_done) {
+		cur_space = text.indexOf(" ", last_space + 1);
+		if (cur_space == -1) {
+			cur_space = text.length();
+		}
+		newline = text.indexOf(newLineChar, last_space + 1);
+		if (newline != -1 && newline < cur_space) cur_space = newline;
+		all_done = cur_space == text.length() || cur_space == text.length() - 1;
+		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text[last_space] == newLineChar) {
+			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
+				lines.push_back(text.substring(offset, last_space));
+				offset = last_space + 1;
+				last_space = cur_space;
+			} else {
+				for (uint16_t n = offset; n < text.length(); n++) {
+					if (m5.lcd.textWidth(text.substring(offset, n + 1)) > width) {
+						lines.push_back(text.substring(offset, n));
+						offset = n;
+						break;
+					}
+				}
+			}
+		} else {
+			last_space = cur_space;
+		}
+
+		//Special case handle the last line
+		if (all_done && offset < text.length()) {
+			while(text.indexOf(newLineChar, offset) > offset) {
+				if(offset < text.length()) {
+					offset = text.indexOf(newLineChar, offset);
+					lines.push_back(text.substring(offset, text.indexOf(newLineChar, offset)));
+				} else {
+					break;
+				}
+			}
+		}
+
+		if (all_done && offset < text.length()) {
+			lines.push_back(text.substring(offset));
+		}
+
+	}
+}
+
 
 void M5ez::_fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines) {
 	uint8_t	prev_num_lines = 100;
