@@ -1467,6 +1467,14 @@ bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simp
 	return true;
 }
 
+void ezMenu::clearItems() {
+	_items.clear();
+	_selected = -1;
+	_fixOffset();
+	M5ez::_redraw = true;
+}
+
+
 bool ezMenu::deleteItem(int16_t index) {
 	if (index < 1 || index > _items.size()) return false;
 	index--;	// internally we work with zero-referenced items
