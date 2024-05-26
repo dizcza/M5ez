@@ -1481,6 +1481,10 @@ bool ezMenu::deleteItem(String name) { return deleteItem(getItemNum(name)); }
 
 String ezMenu::getTitle() { return _header; }
 
+void ezMenu::setTitle(String hdr) {
+	_header = hdr;
+}
+
 bool ezMenu::setCaption(int16_t index, String caption) {
 	if (index < 1 || index > _items.size()) return false;
 	index--;	// internally we work with zero-referenced items
