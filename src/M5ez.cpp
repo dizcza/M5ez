@@ -1071,7 +1071,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			int16_t sol, eol;
 			String this_line;
 			if (lines.size() > 0) {
-				for (int8_t n = offset; n < offset + lines_per_screen; n++) {
+				for (uint16_t n = offset; n < offset + lines_per_screen; n++) {
 					if (n < lines.size() - 1) {
 						this_line = lines[n].line;
 						sol = lines[n].position;
