@@ -1201,21 +1201,17 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 	int16_t newline = 0;
 	bool all_done = false;
 	line_t new_line;
-
-	//If there are no return chars, it's either a single line,
-	//Or it's using linux/mac line endings which are a single char
-	char nlchar = 13;
-	if (text.indexOf(13)==-1) nlchar = 10;
+	const char newLineChar = '\n';
 
 	while (!all_done) {
 		cur_space = text.indexOf(" ", last_space + 1);
 		if (cur_space == -1) {
 			cur_space = text.length();
-			all_done = true;
 		}
-		newline = text.indexOf(char(nlchar), last_space + 1);
+		newline = text.indexOf(newLineChar, last_space + 1);
 		if (newline != -1 && newline < cur_space) cur_space = newline;
-		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text.substring(last_space, last_space + 1) == (String)char(nlchar)) {
+		all_done = cur_space == text.length() || cur_space == text.length() - 1;
+		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text[last_space] == newLineChar) {
 			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
 				new_line.position = offset;
 				new_line.line = text.substring(offset, last_space);
@@ -1239,11 +1235,11 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 
 		//Special case handle the last line
 		if (all_done && offset < text.length()) {
-			while(text.indexOf(char(nlchar), offset) > offset) {
+			while(text.indexOf(newLineChar, offset) > offset) {
 				if(offset < text.length()) {
-					new_line.line = text.substring(offset, text.indexOf(char(nlchar), offset));
+					new_line.line = text.substring(offset, text.indexOf(newLineChar, offset));
 					new_line.position = offset;
-					offset = text.indexOf(char(nlchar), offset);
+					offset = text.indexOf(newLineChar, offset);
 					lines.push_back(new_line);
 				} else {
 					break;
