@@ -1059,7 +1059,6 @@ void M5ez::textBox(String header, const std::vector<String>& lines, String butto
 			ez.buttons.show(tmp_buttons);
 			ez.setFont(font);
 			m5.lcd.setTextColor(color, ez.screen.background());
-			m5.lcd.setTextDatum(TL_DATUM);
 			uint16_t x, y;
 			String this_line;
 			if (lines.size() > 0) {
@@ -1071,8 +1070,14 @@ void M5ez::textBox(String header, const std::vector<String>& lines, String butto
 					}
 					y = ez.canvas.top() + remainder * 0.7 + (n - offset) * per_line_h;
 					x = ez.theme->tb_hmargin;
-					x += m5.lcd.drawString(this_line, x, y);
-					m5.lcd.fillRect(x, y, ez.canvas.width() - x, per_line_h, ez.screen.background());
+					m5.lcd.setTextDatum(TL_DATUM);
+					x += m5.lcd.drawString(ez.leftOf(this_line, "\t"), x, y);
+					if (this_line.indexOf("\t") != -1) {
+						m5.lcd.setTextDatum(TR_DATUM);
+						m5.lcd.drawString(ez.rightOf(this_line, "\t"), TFT_W - ez.theme->menu_rmargin, y);
+					} else {
+						m5.lcd.fillRect(x, y, ez.canvas.width() - x, per_line_h, ez.screen.background());
+					}
 				}
 				redraw = false;
 			}
