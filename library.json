@@ -12,7 +12,7 @@
     "url": "https://github.com/M5ez/M5ez"
   },
   "dependencies": [
-    { "name": "M5Stack" },
+    { "name": "M5Stack" }
   ],
   "version": "2.3.0",
   "framework": "arduino",

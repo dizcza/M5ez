@@ -106,7 +106,9 @@ void ezClock::menu() {
 			case 3:
 				_timezone = ez.textInput("Enter timezone");
 				if (_timezone == "") _timezone = "GeoIP";
+#ifdef EZTIME_NETWORK_ENABLE
 				if (tz.setLocation(_timezone)) _timezone = tz.getOlsen();
+#endif  // EZTIME_NETWORK_ENABLE
 				break;
 			case 4:
 				_posix = ez.textInput("Enter POSIX");
@@ -141,12 +143,14 @@ uint32_t ezClock::loop() {
 		if(_posix_on) {
 			tz.setPosix(_posix);
 		} else {
+#ifdef EZTIME_NETWORK_ENABLE
 			if (tz.setLocation(_timezone)) {
 				if (tz.getOlsen() != _timezone) {
 					_timezone = tz.getOlsen();
 					_writePrefs();
 				}
 			}
+#endif  // EZTIME_NETWORK_ENABLE
 		}
 		ez.header.draw("clock");
 	} else {
