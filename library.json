@@ -13,7 +13,6 @@
   },
   "dependencies": [
     { "name": "M5Stack" },
-    { "name": "ezTime" }
   ],
   "version": "2.3.0",
   "framework": "arduino",
