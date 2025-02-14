@@ -43,7 +43,6 @@ void ezWifi::begin() {
 		Serial.println("EZWIFI: Initialising");
 	#endif
 	WiFi.mode(WIFI_MODE_STA);
-	WiFi.setAutoConnect(false);		// We have our own multi-AP version of this
 	WiFi.setAutoReconnect(false);	// So we turn off the ESP32's versions
 	WiFi.setHostname("M5Stack");
 	readFlash();
@@ -260,7 +259,6 @@ bool ezWifi::_connection(ezMenu* callingMenu) {
 		if (joinmenu.pickName() == "Scan and join") {
 			ez.msgBox("WiFi setup menu", "Scanning ...", "");
 			WiFi.disconnect();
-			WiFi._setStatus(WL_IDLE_STATUS);
 			delay(100);
 			int16_t n = WiFi.scanNetworks();
 			if (n == 0) {
