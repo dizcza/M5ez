@@ -1,3 +1,5 @@
+#ifdef FEATURE_INSTALL_EZWIFI
+
 #include <Preferences.h>
 extern "C" {
 	#include "esp_wifi.h"
@@ -223,7 +225,7 @@ bool ezWifi::_connection(ezMenu* callingMenu) {
 		const uint8_t tab = 140;
 		ez.screen.clear();
 		ez.header.show("Current wifi connection");
-		ez.canvas.font(&FreeSans9pt7b);
+		ez.canvas.font(&FreeMono9pt7b);
 		ez.canvas.lmargin(10);
 		ez.canvas.y(ez.canvas.top() + 5);
 		ez.canvas.print("SSID:"); ez.canvas.x(tab); ez.canvas.println(WiFi.SSID());
@@ -670,3 +672,5 @@ String ezWifi::_update_err2str(uint8_t _error) {
 	}
 	return ("UNKNOWN");
 }
+
+#endif  // FEATURE_INSTALL_EZWIFI

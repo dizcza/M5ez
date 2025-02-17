@@ -100,7 +100,6 @@
 #define FEATURE_INSTALL_EZBACKLIGHT		// Enable built-in feature ezBacklight
 // #define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
 #define FEATURE_INSTALL_EZBATTERY		// Enable built-in feature ezBattery
-//#define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
 
 // For compatability defines in M5ez object
 #ifdef FEATURE_INSTALL_EZWIFI
@@ -663,9 +662,6 @@ class M5ez {
 #endif
 #ifdef FEATURE_INSTALL_EZBATTERY
 	#include "features/ezBattery/ezBattery.h"
-#endif
-#ifdef FEATURE_INSTALL_EZBLE
-	#include "features/ezBLE/ezBLE.h"
 #endif
 
 

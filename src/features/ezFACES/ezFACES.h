@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 // coupling:
 // To determine if the keyboard is enabled, call ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)
 // poll the ezFACES feature by calling ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)(String* data))

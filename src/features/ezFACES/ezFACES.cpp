@@ -1,3 +1,5 @@
+#ifdef FEATURE_INSTALL_EZFACES
+
 #include <Preferences.h>
 #include "../../M5ez.h"
 #include "ezFACES.h"
@@ -87,3 +89,5 @@ String ezFACES::poll() {
 bool ezFACES::on() {
 	return _on;
 }
+
+#endif  // #ifdef FEATURE_INSTALL_EZFACES

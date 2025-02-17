@@ -1,3 +1,5 @@
+#ifdef FEATURE_INSTALL_EZCLOCK
+
 #include <Preferences.h>
 #include "../../M5ez.h"
 #include "ezClock.h"
@@ -191,3 +193,5 @@ bool ezClock::waitForSync(const uint16_t timeout /* = 0 */) {
 	}
 	return true;
 }
+
+#endif  // FEATURE_INSTALL_EZCLOCK
