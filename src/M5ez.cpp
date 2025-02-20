@@ -1031,8 +1031,6 @@ void M5ez::textBox(String header, const std::vector<String>& lines, String butto
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
 	ez.screen.clear();
-	bool cursor_state = false;
-	long cursor_time = 0;
 	if (header != "") ez.header.show(header);
 	int8_t per_line_h = ez.fontHeight();
 	String tmp_buttons = buttons;
@@ -1044,8 +1042,6 @@ void M5ez::textBox(String header, const std::vector<String>& lines, String butto
 	uint16_t offset = 0;
 	bool redraw = true;
 	ez.setFont(font);
-	uint8_t cursor_width = m5.lcd.textWidth("|");
-	uint8_t cursor_height = per_line_h * 0.8;
 	while (true) {
 		if (redraw) {
 			tmp_buttons = buttons;
@@ -1725,7 +1721,8 @@ int16_t ezMenu::_runImagesOnce() {
 
 void ezMenu::_drawImage(MenuItem_t &item) {
 	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+		// sizeof(item.image) / sizeof(item.image[0]) does not compute the no. of elements!
+		log_e("drawJpg not supported!");
 	}
 	if (item.fs) {
 		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
