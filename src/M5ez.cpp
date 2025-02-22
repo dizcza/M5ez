@@ -823,6 +823,14 @@ void M5ez::yield() {
 	ez.tell("ezClock", FEATURE_MSG_CLOCK_EVENTS);
 }
 
+void M5ez::delayYield(uint32_t ms) {
+	const uint32_t start = millis();
+	while (millis() - start < ms) {
+		yield();
+		delay(10);
+	}
+}
+
 void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;

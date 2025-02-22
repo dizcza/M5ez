@@ -566,6 +566,7 @@ class M5ez {
 
 		static void begin();
 		static void yield();
+		static void delayYield(uint32_t ms);
 
 		static void addEvent(uint32_t (*function)(), uint32_t when = 1);
 		static void removeEvent(uint32_t (*function)());
