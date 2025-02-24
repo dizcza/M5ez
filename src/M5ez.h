@@ -643,7 +643,6 @@ class M5ez {
 
 		// ez.textBox
 		static void _wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
-		static void _wrapLines(String text, uint16_t width, std::vector<String>& lines);
 		static void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
 	//
 };

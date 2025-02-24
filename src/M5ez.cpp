@@ -1030,9 +1030,13 @@ void M5ez::_textCursor(bool state) {
 }
 
 void M5ez::textBox(String header /*= ""*/, String text /*= "" */, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
-	std::vector<String> lines;
+	std::vector<line_t> lines;
 	_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
-	textBox(header, lines, buttons, font, color);
+	std::vector<String> linesText;
+	for (const auto& l : lines) {
+		linesText.push_back(l.line);
+	}
+	textBox(header, linesText, buttons, font, color);
 }
 
 void M5ez::textBox(String header, const std::vector<String>& lines, String buttons, const GFXfont* font, uint16_t color) {
@@ -1107,14 +1111,14 @@ void M5ez::textBox(String header, const std::vector<String>& lines, String butto
 }
 
 void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
+	static const char newLineChar = '\n';
 	lines.clear();
-	int16_t offset = 0;
-	int16_t last_space = 0;
-	int16_t cur_space = 0;
-	int16_t newline = 0;
+	int offset = 0;
+	int last_space = 0;
+	int cur_space = 0;
+	int newline = 0;
 	bool all_done = false;
 	line_t new_line;
-	const char newLineChar = '\n';
 
 	while (!all_done) {
 		cur_space = text.indexOf(" ", last_space + 1);
@@ -1132,7 +1136,7 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 				offset = last_space + 1;
 				last_space = cur_space;
 			} else {
-				for (uint16_t n = offset; n < text.length(); n++) {
+				for (int n = offset; n < text.length(); n++) {
 					if (m5.lcd.textWidth(text.substring(offset, n + 1)) > width) {
 						new_line.position = offset;
 						new_line.line = text.substring(offset, n);
@@ -1164,61 +1168,6 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 			new_line.position = offset;
 			new_line.line = text.substring(offset);
 			lines.push_back(new_line);
-		}
-
-	}
-}
-
-
-void M5ez::_wrapLines(String text, uint16_t width, std::vector<String>& lines) {
-	lines.clear();
-	int16_t offset = 0;
-	int16_t last_space = 0;
-	int16_t cur_space = 0;
-	int16_t newline = 0;
-	bool all_done = false;
-	const char newLineChar = '\n';
-
-	while (!all_done) {
-		cur_space = text.indexOf(" ", last_space + 1);
-		if (cur_space == -1) {
-			cur_space = text.length();
-		}
-		newline = text.indexOf(newLineChar, last_space + 1);
-		if (newline != -1 && newline < cur_space) cur_space = newline;
-		all_done = cur_space == text.length() || cur_space == text.length() - 1;
-		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text[last_space] == newLineChar) {
-			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
-				lines.push_back(text.substring(offset, last_space));
-				offset = last_space + 1;
-				last_space = cur_space;
-			} else {
-				for (uint16_t n = offset; n < text.length(); n++) {
-					if (m5.lcd.textWidth(text.substring(offset, n + 1)) > width) {
-						lines.push_back(text.substring(offset, n));
-						offset = n;
-						break;
-					}
-				}
-			}
-		} else {
-			last_space = cur_space;
-		}
-
-		//Special case handle the last line
-		if (all_done && offset < text.length()) {
-			while(text.indexOf(newLineChar, offset) > offset) {
-				if(offset < text.length()) {
-					offset = text.indexOf(newLineChar, offset);
-					lines.push_back(text.substring(offset, text.indexOf(newLineChar, offset)));
-				} else {
-					break;
-				}
-			}
-		}
-
-		if (all_done && offset < text.length()) {
-			lines.push_back(text.substring(offset));
 		}
 
 	}
