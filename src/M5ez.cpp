@@ -1433,6 +1433,10 @@ void ezMenu::setSortFunction(bool (*sortFunction)(const char* s1, const char* s2
 	_sortItems();	// In case the menu is already populated
 }
 
+void ezMenu::setSelection(int selectionId) {
+	_selected = selectionId;
+}
+
 void ezMenu::buttons(String bttns) {
 	_buttons = bttns;
 }

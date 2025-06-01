@@ -424,6 +424,7 @@ class ezMenu {
 		bool setCaption(int16_t index, String caption);
 		bool setCaption(String name, String caption);
 		void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2));
+		void setSelection(int selectionId);
 		void buttons(String bttns);
 		void upOnFirst(String nameAndCaption);
 		void leftOnFirst(String nameAndCaption);
