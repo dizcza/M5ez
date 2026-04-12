@@ -81,7 +81,7 @@
 #elif defined (ARDUINO_M5STACK_Core2)
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x6;
-#elif defined (ARDUINO_ESP32_DEV)	//M35
+#elif defined (ARDUINO_ESP32_DEV_UNUSED)	//M35
 	theme.lcd_brightness_default = 0x8;
 	theme.btn_brightness_default = 0x6;
 #elif defined (ARDUINO_D1_MINI32)	//K36

@@ -24,7 +24,7 @@
 		#include "M5StickCPlus.h"
 	#elif defined (ARDUINO_M5STACK_Core2)
 		#include <M5Core2.h>
-	#elif defined (ARDUINO_ESP32_DEV)
+	#elif defined (ARDUINO_ESP32_DEV_UNUSED)
 		#include <M5Stack.h>
 	#endif
 #endif
@@ -44,7 +44,7 @@
 #elif defined (ARDUINO_M5STACK_Core2)
 	#define TFT_W		320
 	#define TFT_H		240
-#elif defined (ARDUINO_ESP32_DEV)	//M35
+#elif defined (ARDUINO_ESP32_DEV_UNUSED)	//M35
 	#define TFT_W		320
 	#define TFT_H		480
 #elif defined (ARDUINO_D1_MINI32)	//K36
@@ -240,7 +240,7 @@ class ezTheme {
 	#elif defined (ARDUINO_M5STACK_Core2)
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_ESP32_DEV)	//M35
+	#elif defined (ARDUINO_ESP32_DEV_UNUSED)	//M35
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0xA;
 	#elif defined (ARDUINO_D1_MINI32)	//K36
