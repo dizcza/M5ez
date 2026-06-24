@@ -1,4 +1,9 @@
 #pragma once
+
+#include "../../M5ez.h"
+
+#ifdef FEATURE_INSTALL_EZCLOCK
+
 #include <ezTime.h>
 
 #define TZ_POSIX ("EET-2EEST,M3.5.0/3,M10.5.0/4")
@@ -31,3 +36,5 @@ class ezClock {
 		static String _datetime;
 		static bool _starting;
 };
+
+#endif  // FEATURE_INSTALL_EZCLOCK

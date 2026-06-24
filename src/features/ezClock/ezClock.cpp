@@ -1,9 +1,8 @@
+#include "ezClock.h"
+
 #ifdef FEATURE_INSTALL_EZCLOCK
 
 #include <Preferences.h>
-#include "../../M5ez.h"
-#include "ezClock.h"
-
 
 Timezone ezClock::tz;
 bool ezClock::_on;
@@ -68,7 +67,7 @@ void ezClock::restart() {
 			length = _date_on ? 15 : 6;
 		}
 		ez.setFont(ez.theme->clock_font);
-		uint8_t width = length * m5.lcd.textWidth("5") + ez.theme->header_hmargin * 2;
+		uint8_t width = length * M5.Lcd.textWidth("5") + ez.theme->header_hmargin * 2;
 		ez.header.insert(ez.header.position("battery"), "clock", width, ezClock::draw);
 	}
 }
@@ -163,11 +162,11 @@ uint32_t ezClock::loop() {
 
 void ezClock::draw(uint16_t x, uint16_t w) {
 	if (_starting) return;
-	m5.lcd.fillRect(x, 0, w, ez.theme->header_height, ez.theme->header_bgcolor);
+	M5.Lcd.fillRect(x, 0, w, ez.theme->header_height, ez.theme->header_bgcolor);
 	ez.setFont(ez.theme->clock_font);
-	m5.lcd.setTextColor(ez.theme->header_fgcolor);
-	m5.lcd.setTextDatum(TL_DATUM);
-	m5.lcd.drawString(tz.dateTime(_datetime), x + ez.theme->header_hmargin, ez.theme->header_tmargin + 2);
+	M5.Lcd.setTextColor(ez.theme->header_fgcolor);
+	M5.Lcd.setTextDatum(TL_DATUM);
+	M5.Lcd.drawString(tz.dateTime(_datetime), x + ez.theme->header_hmargin, ez.theme->header_tmargin + 2);
 }
 
 void ezClock::_writePrefs() {

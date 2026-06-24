@@ -19,7 +19,7 @@ However, all of this comes with some changes to the names of common functions in
 
 ### Converting code from M5ez 1.x to 2.x
 
-To convert code form 1.x to 2.x, first remove the `m5.begin()` at the start of your code, and replace it by `ez.begin()`. Then it is recommended you replace the following functions:
+To convert code form 1.x to 2.x, first remove the `M5.begin()` at the start of your code, and replace it by `ez.begin()`. Then it is recommended you replace the following functions:
 
 | M5ez 1.x |    | M5ez 2.x |
 |:---------|:--:|:---------|

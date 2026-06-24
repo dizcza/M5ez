@@ -32,7 +32,7 @@
 
 The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
-On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `m5.lcd.`.
+On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `M5.Lcd.`.
 
 Making something that looks good and allows users to interact with it is not simple though: you have to program everything yourself. If you try to make something a little more complex, you quickly get bogged down in figuring out where things go on the display, what state your interface is in, etc etc.
 
@@ -100,7 +100,7 @@ If you feel anything is still unclear after reading this document, please file a
 
 As you can see from the examples, the commands that activate M5ez's functionality start with `ez.`. That `ez` refers to an object `ez` that is within the "root namespace" of the sketch. Within it are commands like `ez.msgBox`, but also other objects. For instance: commands that deal with the entire screen are prefixed with `ez.screen.`, WiFi commands start with `ez.wifi.` and so forth.
 
-After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `m5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5StX.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
+After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `M5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5StX.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
 
 &nbsp;
 
@@ -228,7 +228,7 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line.
+If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `M5.lcs.fillRect`, it will be gone once you print beyond the last line.
 
 You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
 
@@ -449,9 +449,9 @@ This will word-wrap and display the string in `text` (up to 32 kB), allowing the
 
 **`int16_t ez.fontHeight()`**
 
-Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `m5.lcd` functions.
+Just like when using the `M5.Lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `M5.Lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `M5.lcd` functions.
 
-The fontHeight without arguments returns the height of the current font - FreeFont or otherwise - in pixels, without needing to specify which text font like in the `m5.lcd` version.
+The fontHeight without arguments returns the height of the current font - FreeFont or otherwise - in pixels, without needing to specify which text font like in the `M5.lcd` version.
 
 What that all means is that without adding any fonts of your own, you can specify the following fonts:
 
@@ -772,11 +772,11 @@ If you want your code to have access to the way the menus are drawn, you can sup
 
 ```
 void myDrawFunction(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h){
-  m5.lcd.setTextDatum(CL_DATUM);
-  m5.lcd.setTextColor(ez.theme->menu_item_color);
+  M5.Lcd.setTextDatum(CL_DATUM);
+  M5.Lcd.setTextColor(ez.theme->menu_item_color);
   // New callingMenu aspect
-  m5.lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
-  m5.lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
+  M5.Lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
+  M5.Lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
 }
 ```
 

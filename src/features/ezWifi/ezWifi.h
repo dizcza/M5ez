@@ -1,9 +1,10 @@
 #pragma once
 
-#include <WiFi.h>
+#include "../../M5ez.h"
 
-// Comment out the line below to disable WPS.
-//#define M5EZ_WPS
+#ifdef FEATURE_INSTALL_EZWIFI
+
+#include <WiFi.h>
 
 enum WifiState_t {
 	EZWIFI_NOT_INIT,
@@ -49,10 +50,6 @@ class ezWifi {
 		static String _update_err2str(uint8_t _error);
 		static ezProgressBar* _update_progressbar;
 		static String _update_error;
-		#ifdef M5EZ_WPS
-			static void _WPShelper(WiFiEvent_t event, system_event_info_t info);
-			static WiFiEvent_t _WPS_event;
-			static String _WPS_pin;
-			static bool _WPS_new_event;
-		#endif
 };
+
+#endif  // FEATURE_INSTALL_EZWIFI

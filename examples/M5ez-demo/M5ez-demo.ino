@@ -118,7 +118,7 @@ bool mngAlarmTime(ezMenu* callingMenu) {
   while (true) {     
     ez.msgBox("TIME", disp_val, " - # -- # select | > # OK # + # ++ # # # Back ", false, &FreeMono12pt7b);
     ez.canvas.font(&FreeMonoBold18pt7b);
-    M5.lcd.fillRect (0, ez.canvas.bottom() - 40, TFT_W, 40, ez.theme->background); 
+    M5.Lcd.fillRect (0, ez.canvas.bottom() - 40, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(13, ez.canvas.bottom() - 40);
     ez.canvas.color(elementSet == TM_DAY    ? highlight_color : ez.theme->msg_color);            
     ez.canvas.print(zeropad((uint32_t)tmOnScreen.Day, 2));
@@ -411,7 +411,7 @@ void printButton(){
   String btnpressed = ez.buttons.poll();
   if (btnpressed == "Done") break;
   if (btnpressed != "") {
-    m5.lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
+    M5.Lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(20, ez.canvas.bottom() - 45);
     ez.canvas.color(TFT_RED);
     ez.canvas.font(&FreeSansBold18pt7b);
@@ -443,7 +443,7 @@ void mainmenu_ota() {
   }
 }
 
-void powerOff() { m5.powerOFF(); }
+void powerOff() { M5.powerOFF(); }
 
 void aboutM5ez() {
   ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/M5ez/M5ez");

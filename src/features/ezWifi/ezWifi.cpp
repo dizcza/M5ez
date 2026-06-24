@@ -1,14 +1,13 @@
+#include "ezWifi.h"
+
 #ifdef FEATURE_INSTALL_EZWIFI
 
 #include <Preferences.h>
 extern "C" {
 	#include "esp_wifi.h"
-	#include "esp_wps.h"
 }
 #include <WiFiClientSecure.h>		// For ez.update
 #include <Update.h>
-#include "../../M5ez.h"
-#include "ezWifi.h"
 
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG
@@ -21,11 +20,6 @@ std::vector<WifiNetwork_t> ezWifi::networks;
 ezProgressBar* ezWifi::_update_progressbar;
 String ezWifi::_update_error;
 bool ezWifi::autoConnect;
-#ifdef M5EZ_WPS
-	WiFiEvent_t ezWifi::_WPS_event;
-	String ezWifi::_WPS_pin;
-	bool ezWifi::_WPS_new_event;
-#endif
 
 
 bool ezWifi::entry(uint8_t command, void* /* user */) {
@@ -81,7 +75,7 @@ void ezWifi::_drawWidget(uint16_t x, uint16_t w) {
 	uint8_t this_len;
 	for (uint8_t n = 0; n < max_bars; n++) {
 		this_len = ((float) (n + 1) / max_bars) * max_len;
-		m5.lcd.fillRect(left_offset + n * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap), top + max_len - this_len, ez.theme->signal_bar_width, this_len, (n + 1 <= bars ? ez.theme->header_fgcolor : ez.theme->header_bgcolor) );
+		M5.Lcd.fillRect(left_offset + n * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap), top + max_len - this_len, ez.theme->signal_bar_width, this_len, (n + 1 <= bars ? ez.theme->header_fgcolor : ez.theme->header_bgcolor) );
 	}
 }
 
@@ -251,10 +245,6 @@ bool ezWifi::_connection(ezMenu* callingMenu) {
 		joinmenu.txtSmall();
 		joinmenu.addItem("Scan and join");
 		joinmenu.addItem("SmartConfig");
-		#ifdef M5EZ_WPS
-			joinmenu.addItem("WPS Button");
-			joinmenu.addItem("WPS Pin Code");
-		#endif
 		joinmenu.buttons("up#Back#select##down#");
 		joinmenu.runOnce();
 
@@ -325,78 +315,11 @@ bool ezWifi::_connection(ezMenu* callingMenu) {
 			}
 		}
 
-		#ifdef M5EZ_WPS
-			if (joinmenu.pickName().substring(0,3) == "WPS") {
-				ez.msgBox("WPS setup", "Waiting for WPS", "Abort", false);
-				WiFi.mode(WIFI_MODE_STA);
-				static esp_wps_config_t config;
-				config.crypto_funcs = &g_wifi_default_wps_crypto_funcs;
-				strcpy(config.factory_info.manufacturer, "ESPRESSIF");
-				strcpy(config.factory_info.model_number, "ESP32");
-				strcpy(config.factory_info.model_name, "ESPRESSIF IOT");
-				strcpy(config.factory_info.device_name, "ESP STATION");
-				if (joinmenu.pickName() == "WPS Button") {
-					config.wps_type = WPS_TYPE_PBC;
-				} else {
-					config.wps_type = WPS_TYPE_PIN;
-				}
-				WiFi.onEvent(_WPShelper);
-				esp_wifi_wps_enable(&config);
-				esp_wifi_wps_start(0);
-
-				_WPS_new_event = false;
-				while (!WiFi.isConnected()) {
-					if (ez.buttons.poll() == "Abort") {
-						esp_wifi_wps_disable();
-						break;
-					}
-					if (_WPS_new_event) {
-						switch(_WPS_event) {
-							case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-								ez.msgBox("WPS setup", "WPS successful | Connecting ...", "Abort", false);
-								esp_wifi_wps_disable();
-								delay(10);
-								WiFi.begin();
-								break;
-							case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-							case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-								ez.msgBox("WPS setup", "WPS failed or timed out | Retrying ...", "Abort", false);
-								esp_wifi_wps_disable();
-								esp_wifi_wps_enable(&config);
-								esp_wifi_wps_start(0);
-								break;
-							case SYSTEM_EVENT_STA_WPS_ER_PIN:
-								ez.msgBox("WPS setup", "WPS PIN: " + _WPS_pin, "Abort", false);
-								break;
-							default:
-								break;
-						}
-						_WPS_new_event = false;
-					}
-				}
-			}
-		#endif
-
 		if (WiFi.isConnected()) _askAdd();
 	}
 	callingMenu->setCaption("connection", (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"));
 	return true;
 }
-
-#ifdef M5EZ_WPS
-	void ezWifi::_WPShelper(WiFiEvent_t event, system_event_info_t info) {
-		_WPS_event = event;
-		_WPS_new_event = true;
-		if (event == SYSTEM_EVENT_STA_WPS_ER_PIN) {
-			char wps_pin[9];
-			for (int8_t i = 0; i < 8; i++) {
-				wps_pin[i] = info.sta_er_pin.pin_code[i];
-			}
-			wps_pin[8] = '\0';
-			_WPS_pin = String(wps_pin);
-		}
-	}
-#endif
 
 void ezWifi::_askAdd() {
 	for (uint8_t n = 0; n < networks.size(); n++) {

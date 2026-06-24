@@ -1,8 +1,8 @@
+#include "ezFACES.h"
+
 #ifdef FEATURE_INSTALL_EZFACES
 
 #include <Preferences.h>
-#include "../../M5ez.h"
-#include "ezFACES.h"
 
 
 bool ezFACES::_on;

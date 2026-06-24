@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "../../M5ez.h"
 
 // coupling:
 // To determine if the keyboard is enabled, call ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)

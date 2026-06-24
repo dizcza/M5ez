@@ -3,66 +3,12 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
-#include <vector>			// std::vector
+#include <vector>
+#include <M5StX.h>
+#include <SD.h>
 
-#define _M5STX_CORE_
-#define UKRAINIAN
-
-#if defined (_M5STX_CORE_)
-	#include <M5StX.h>
-#else
-	#define TFT_SLPIN           0x10
-	#define TFT_SLPOUT          0x11
-	#define TFT_DISPOFF         0x28
-	#define TFT_DISPON          0x29
-
-	#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE) || defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
-		#include <M5Stack.h>
-	#elif defined ( ARDUINO_M5Stick_C )	//Tested on M5StickC Plus
-	// 	#include <M5StickC.h>
-	// #elif defined (ARDUINO_M5Stick_C_Plus) //setRotation() does not work with CC
-		#include "M5StickCPlus.h"
-	#elif defined (ARDUINO_M5STACK_Core2)
-		#include <M5Core2.h>
-	#elif defined (ARDUINO_ESP32_DEV_UNUSED)
-		#include <M5Stack.h>
-	#endif
-#endif
-
-#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
-	#define TFT_W		320
-	#define TFT_H		240
-#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
-	#define TFT_W		240
-	#define TFT_H		320
-#elif defined (ARDUINO_M5Stick_C)
-// 	#define TFT_W		160
-// 	#define TFT_H		 80
-// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
-	#define TFT_W		240
-	#define TFT_H		135
-#elif defined (ARDUINO_M5STACK_Core2)
-	#define TFT_W		320
-	#define TFT_H		240
-#elif defined (ARDUINO_ESP32_DEV_UNUSED)	//M35
-	#define TFT_W		320
-	#define TFT_H		480
-#elif defined (ARDUINO_D1_MINI32)	//K36
-	#define TFT_W		320
-	#define TFT_H		240
-#elif defined (ARDUINO_FROG_ESP32)  //K46v4
-	#define TFT_W		320
-	#define TFT_H		240
-	#define BTN_BL		 19
-#elif defined (ARDUINO_TTGO_T1)
-	#define TFT_W		320
-	#define TFT_H		240
-	#undef BTN_BL
-#elif defined (ARDUINO_WESP32)	//K46v1
-	#define TFT_W		320
-	#define TFT_H		240
-	#define BTN_BL		 26
-#endif
+#define TFT_W		320
+#define TFT_H		240
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
@@ -225,31 +171,8 @@ class ezTheme {
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
 
-	#if defined (ARDUINO_M5Stack_Core_ESP32) || defined (ARDUINO_M5STACK_FIRE)
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_LOLIN_D32_PRO) //TTGO T4 v1.3
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_M5Stick_C)
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	// #elif defined (ARDUINO_M5Stick_C_Plus)	//Not in Arduino-ESP, yet?
-	// 	uint8_t lcd_brightness_default = 0x8;
-	// 	uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_M5STACK_Core2)
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_ESP32_DEV_UNUSED)	//M35
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_D1_MINI32)	//K36
-		uint8_t lcd_brightness_default = 0x8;
-		uint8_t btn_brightness_default = 0xA;
-	#elif defined (ARDUINO_FROG_ESP32) || defined (ARDUINO_WESP32) || defined (ARDUINO_TTGO_T1)	//K46v4 || K46v1
 		uint8_t lcd_brightness_default = 0x8;
 		uint8_t btn_brightness_default = 0x2;
-	#endif
 	//						
 };
 
@@ -476,10 +399,8 @@ class ezMenu {
 		int16_t _per_item_h, _vmargin;
 		int16_t _items_per_screen;
 		uint16_t _old_background;
-		void _drawImage(MenuItem_t &item);
 		void _drawCaption();
 		const GFXfont* _font;
-		int16_t _runImagesOnce();
 		int16_t _runTextOnce();
 		void _fixOffset();
 		void _drawItems();
@@ -594,7 +515,7 @@ class M5ez {
 		static String clipString(String input, int16_t cutoff, bool dots = true);
 		static bool isBackExitOrDone(String str);
 
-		// m5.lcd wrappers that make fonts easier
+		// M5.lcd wrappers that make fonts easier
 		static void setFont(const GFXfont* font);
 		static int16_t fontHeight();
 
