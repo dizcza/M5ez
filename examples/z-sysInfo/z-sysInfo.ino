@@ -7,7 +7,7 @@
 
 #ifndef MAIN_DECLARED
 
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {

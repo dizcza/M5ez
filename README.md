@@ -8,11 +8,31 @@
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
 
+## This fork diffs
+
+* M5Stack, M5Core2 and partially M5Stick device support
+* TFT backlight on all devices
+* TFT_H can be more than 255 for 240x320 and 320x480 TFTs
+* Event repeat time in micros
+* New themes with translatable display names
+* Optional button backlight control added
+* Backlight defaults in themes
+* Inactivity timeout in 15s steps
+* Fix to keep events running during inactivity
+* Screen wakeup from events
+* 8-bar battery charge animation on all devices
+* Battery charging animation
+* Date display setting
+* Reordered widgets with rightmost battery one
+* M5ez-demo example with new features included
+* Unified M5Stack-compatible stack for supported devices
+
+
 ## Introduction
 
 The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
-On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `m5.lcd.`.
+On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `M5.Lcd.`.
 
 Making something that looks good and allows users to interact with it is not simple though: you have to program everything yourself. If you try to make something a little more complex, you quickly get bogged down in figuring out where things go on the display, what state your interface is in, etc etc.
 
@@ -80,7 +100,7 @@ If you feel anything is still unclear after reading this document, please file a
 
 As you can see from the examples, the commands that activate M5ez's functionality start with `ez.`. That `ez` refers to an object `ez` that is within the "root namespace" of the sketch. Within it are commands like `ez.msgBox`, but also other objects. For instance: commands that deal with the entire screen are prefixed with `ez.screen.`, WiFi commands start with `ez.wifi.` and so forth.
 
-After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `m5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5Stack.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
+After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `M5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5StX.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
 
 &nbsp;
 
@@ -208,7 +228,7 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line.
+If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `M5.lcs.fillRect`, it will be gone once you print beyond the last line.
 
 You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
 
@@ -302,7 +322,7 @@ Now that we're dealing with waiting for key presses, this is a good moment to ta
 
 It could be that your code needs to do things that take a little while. If something takes many seconds, consider putting in an "abort" key. But suppose your code is busy and is not using `ez.buttons.poll` or `ez.buttons.wait` to check for keys. In that case use `ez.yield()` in your loop to make sure the clock and WiFi updating (as well as user defined tasks) get executed. `ez.yield` calls the Arduino `yield` function, so you do not need to call that separately.
 
-### Your own events
+### Your own events 
 
 `void ez.addEvent(uint32_t (*function)(), uint32_t when = 1)`
 
@@ -312,7 +332,7 @@ With `addevent` you can register a function of your own to be executed periodica
 
 The value returned by your function is the number of microseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000000. If your function returns 0, the event is deleted and not executed any further.
 
-> Note: Prevoius 16-bit wait time were for things that need to happen not too frequently and did not last long. Now you can use event loop to react on ISR set flags in less than 1ms and the next event can be up to 71 minutes out as the period between them is a 32-bit unsigned integer of us. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
+> Note: Prevoius 16-bit wait time were for things that need to happen not too frequently and did not last long. Now you can use event loop to react on ISR-set flags in less than 1ms and the next event can be up to 71 minutes away as the period between them is a 32-bit unsigned integer of us. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
 
 As the name implies, `ez.removeEvent` also removes your function from the loop.
 
@@ -429,9 +449,9 @@ This will word-wrap and display the string in `text` (up to 32 kB), allowing the
 
 **`int16_t ez.fontHeight()`**
 
-Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `m5.lcd` functions.
+Just like when using the `M5.Lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `M5.Lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `M5.lcd` functions.
 
-The fontHeight without arguments returns the height of the current font - FreeFont or otherwise - in pixels, without needing to specify which text font like in the `m5.lcd` version.
+The fontHeight without arguments returns the height of the current font - FreeFont or otherwise - in pixels, without needing to specify which text font like in the `M5.lcd` version.
 
 What that all means is that without adding any fonts of your own, you can specify the following fonts:
 
@@ -541,7 +561,7 @@ Menus are a way of letting users choose between different options, usually to in
 To create a menu we create an instance of the `ezMenu` object. By having each menu be it's own instance of that object, we can store information that will disappear from RAM if a submenu closes and we can return to higher menus which have kept their state. let's start with a complete sketch for a very simple text menu:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -572,7 +592,7 @@ Which is all fine and well if that's our main menu, but it doesn't work if if th
 Let's see our sketch again, this time with a submenu added:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -614,7 +634,7 @@ As you can see, the submenu called `subMenu` has three items that do nothing bec
 Until now we have considered menus that run all by themselves, unless they exit when a user selects an option named "Back", "Exit" or "Done". But you can also call `yourMenu.runOnce()` which will exit every time a user selects an option (but still after executing the supplied function or functions). Take a look at this:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -639,7 +659,7 @@ void loop() {
 This does exactly the same as the first example we started with. Note that `.runOnce()` returns an integer that holds the position of the item selected. So the following would be yet another way to get the same functionality:
 
 ```
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 
 void setup() {
@@ -752,11 +772,11 @@ If you want your code to have access to the way the menus are drawn, you can sup
 
 ```
 void myDrawFunction(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h){
-  m5.lcd.setTextDatum(CL_DATUM);
-  m5.lcd.setTextColor(ez.theme->menu_item_color);
+  M5.Lcd.setTextDatum(CL_DATUM);
+  M5.Lcd.setTextColor(ez.theme->menu_item_color);
   // New callingMenu aspect
-  m5.lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
-  m5.lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
+  M5.Lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
+  M5.Lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
 }
 ```
 
@@ -998,7 +1018,7 @@ BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Lo
 
 ### Battery
 
-The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
+The battery menu allows you to selectively show a battery level icon in the header bar. Due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) on M5Stack it can only show four different battery levels but 8 levels on other M5 devices with AXP192 PMIC. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
 
 &nbsp;
 
@@ -1046,12 +1066,17 @@ That's how the backlight menu item is added to the menu.
 
 ### Including themes
 
-In the `setup()` part of your code, you can include themes from the themes directory. If you include multiple themes, the settings menu will show a theme chooser where the user can choose their theme. For instance, the M5ez demo program offers both the 'default' and the 'dark' theme as follows:
+In the `setup()` part of your code, you can include themes from the themes directory. If you include multiple themes, the settings menu will show a theme chooser where the user can choose their theme. For instance, the M5ez demo program offers several themes to use device in a daylight or at night as follows:
 
 ```
 void setup() {
   #include <themes/default.h>
   #include <themes/dark.h>
+  #include <themes/monoAmber.h>
+  #include <themes/monoDark.h>
+  #include <themes/monoDay.h>
+  #include <themes/monoDayBtn.h>
+  #include <themes/monoNight.h>
   ez.begin();
 }
 ```

@@ -9,6 +9,11 @@
 void setup() {
   #include <themes/default.h>
   #include <themes/dark.h>
+  #include <themes/monoAmber.h>
+  #include <themes/monoDark.h>
+  #include <themes/monoDay.h>
+  #include <themes/monoDayBtn.h>
+  #include <themes/monoNight.h>
   ezt::setDebug(INFO);
   ez.begin();
 }
@@ -113,7 +118,7 @@ bool mngAlarmTime(ezMenu* callingMenu) {
   while (true) {     
     ez.msgBox("TIME", disp_val, " - # -- # select | > # OK # + # ++ # # # Back ", false, &FreeMono12pt7b);
     ez.canvas.font(&FreeMonoBold18pt7b);
-    M5.lcd.fillRect (0, ez.canvas.bottom() - 40, TFT_W, 40, ez.theme->background); 
+    M5.Lcd.fillRect (0, ez.canvas.bottom() - 40, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(13, ez.canvas.bottom() - 40);
     ez.canvas.color(elementSet == TM_DAY    ? highlight_color : ez.theme->msg_color);            
     ez.canvas.print(zeropad((uint32_t)tmOnScreen.Day, 2));
@@ -260,12 +265,20 @@ uint32_t period;
 uint32_t secondsCounter = 0;
 
 uint32_t eventLoop() {
-    //get some updated data 
+    //get some updated data
+    
     //for example period between loop reentries in us
     timeOnEntry = esp_timer_get_time();
     period = timeOnEntry - timeOnEntryOld;
     timeOnEntryOld = timeOnEntry;
     secondsCounter++;
+    
+    //wake up screen on some event
+    if(secondsCounter >= 100){
+      secondsCounter = 0;
+      ez.backlight.wakeup();
+    }
+    
     //show updated data in an item of the active menue 
     ezMenu* curMenu = M5ez::getCurrentMenu();
     if (curMenu->getTitle() == "Control") {
@@ -398,7 +411,7 @@ void printButton(){
   String btnpressed = ez.buttons.poll();
   if (btnpressed == "Done") break;
   if (btnpressed != "") {
-    m5.lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
+    M5.Lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(20, ez.canvas.bottom() - 45);
     ez.canvas.color(TFT_RED);
     ez.canvas.font(&FreeSansBold18pt7b);
@@ -430,7 +443,7 @@ void mainmenu_ota() {
   }
 }
 
-void powerOff() { m5.powerOFF(); }
+void powerOff() { M5.powerOFF(); }
 
 void aboutM5ez() {
   ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/ropg/M5ez");

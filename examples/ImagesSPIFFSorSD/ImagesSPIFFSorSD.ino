@@ -6,7 +6,7 @@
  * 
  */
 
-#include <M5Stack.h>
+#include <M5StX.h>
 #include <M5ez.h>
 #include <SPIFFS.h>
 
